@@ -27,10 +27,10 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#about aespa">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                         <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
                         <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                     </ul>
                 </div>
@@ -42,15 +42,71 @@
                 @RenderBody()
                 <div class="masthead-subheading"></div>
             <div class="masthead-heading text-uppercase">Welcome To My World!</div>
-                <a class="btn btn-primary btn-xl text-uppercase" href="#services">了解更多</a>
+                <a class="btn btn-primary btn-xl text-uppercase" href="#about aespa">了解更多</a>
             <a class="btn btn-primary btn-xl text-uppercase ms-5" href="#services" >前往購買</a>
             </div>
         </header>
-        <!-- Services-->
+    <!-- about aespa-->
+    <section class="page-section bg-light" id="about aespa">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-heading">About aespa</h2>
+                <h3 class="section-subheading text-muted">Be MY æ!</h3>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/karina-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">Karina</h4>
+                        <p class="text-muted">劉知珉(隊長)</p>
+                        <p class="text">生日：2000-04-11</p>
+                        <p class="text">國籍：韓國</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/katarinabluu/" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=g6Z_9w-2OuQ" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/giselle-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">Giselle</h4>
+                        <p class="text-muted">内永枝利</p>
+                        <p class="text">生日：2000-10-30</p>
+                        <p class="text">國籍：日本</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/aerichandesu/" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=sJ9WnyMjALs" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/winter-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">Winter</h4>
+                        <p class="text-muted">金旼炡</p>
+                        <p class="text">生日：2001-01-01</p>
+                        <p class="text">國籍：韓國</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/imwinter/" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=74fSrrQM5hA" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/ningning-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">NingNing</h4>
+                        <p class="text-muted">寧藝卓</p>
+                        <p class="text">生日：2002-10-23</p>
+                        <p class="text">國籍：中國</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/imnotningning/" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=ycLB35lrmbM" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+        <!-- services-->
         <section class="page-section" id="services">
             <div class="container">
                 <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Services</h2>
+                <h2 class="section-heading text-uppercase">services</h2>
                     <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
                 </div>
                 <div class="row text-center">
@@ -242,50 +298,6 @@
                         </div>
                     </li>
                 </ul>
-            </div>
-        </section>
-        <!-- Team-->
-        <section class="page-section bg-light" id="team">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="section-heading text-uppercase">Our Amazing Team</h2>
-                    <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4">
-                        <div class="team-member">
-                            <img class="mx-auto rounded-circle" src="assets/img/team/1.jpg" alt="..." />
-                            <h4>Parveen Anand</h4>
-                            <p class="text-muted">Lead Designer</p>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Twitter Profile"><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand Facebook Profile"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Parveen Anand LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="team-member">
-                            <img class="mx-auto rounded-circle" src="assets/img/team/2.jpg" alt="..." />
-                            <h4>Diana Petersen</h4>
-                            <p class="text-muted">Lead Marketer</p>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen Twitter Profile"><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen Facebook Profile"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Diana Petersen LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="team-member">
-                            <img class="mx-auto rounded-circle" src="assets/img/team/3.jpg" alt="..." />
-                            <h4>Larry Parker</h4>
-                            <p class="text-muted">Lead Developer</p>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker Twitter Profile"><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker Facebook Profile"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Larry Parker LinkedIn Profile"><i class="fab fa-linkedin-in"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-8 mx-auto text-center"><p class="large text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eaque, laboriosam veritatis, quos non quis ad perspiciatis, totam corporis ea, alias ut unde.</p></div>
-                </div>
             </div>
         </section>
         <!-- Clients-->
