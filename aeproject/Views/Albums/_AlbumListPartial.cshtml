@@ -1,0 +1,12 @@
+﻿<ul>
+    @foreach (var Album in Model)
+    {
+        <li>
+            <strong>專輯名稱:</strong> @Album.AlbumName <br />
+            <strong>發行日期:</strong> @Album.ReleaseDate.ToShortDateString() <br />
+            <strong>專輯類型:</strong> @Album.AlbumType <br />
+            <strong>發行公司:</strong> @Album.Agency <br />
+            <strong>專輯封面:</strong> <img src="@Album.AlbumCover" alt="Album Cover" width="150" height="150" />
+        </li>
+    }
+</ul>
