@@ -19,16 +19,11 @@ namespace aeproject.Controllers
         }
 
         // GET: Albums
-        public async Task<IActionResult> Index()
+        // GET: Partial view for albums list
+        public async Task<IActionResult> AlbumListPartial()
         {
-            return View(await _context.Albums.ToListAsync());
-        }
-
-        public IActionResult AlbumListPartial()
-        {
-            // 這裡載入專輯資料
-            var albums = _context.Albums.ToList();
-            return PartialView("_AlbumListPartial", albums); // 返回部分視圖
+            var albums = await _context.Albums.ToListAsync();
+            return PartialView("_AlbumListPartial", albums);
         }
 
         // GET: Albums/Details/5
@@ -46,7 +41,7 @@ namespace aeproject.Controllers
                 return NotFound();
             }
 
-            return View(album);
+            return View("Delete", album);
         }
 
         // GET: Albums/Create
