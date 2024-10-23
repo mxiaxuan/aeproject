@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Index";
 }
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-12">
@@ -42,7 +43,8 @@
                                 @Html.DisplayFor(modelItem => item.AlbumType)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.AlbumCover)
+                                <!-- 使用 AlbumCover 作為圖片的 src -->
+                                <img src="@Url.Content(item.AlbumCover)" alt="Album Cover" style="max-width: 100px; max-height: 100px;" />
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.Agency)
