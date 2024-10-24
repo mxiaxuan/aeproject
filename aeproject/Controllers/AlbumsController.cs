@@ -22,7 +22,10 @@ namespace aeproject.Controllers
         // GET: Partial view for albums list
         public async Task<IActionResult> AlbumListPartial()
         {
-            var albums = await _context.Albums.ToListAsync();
+            var albums = await _context.Albums
+                .OrderBy(a => a.ReleaseDate)// 按發行日期升序排序
+                .ToListAsync();
+
             return PartialView("_AlbumListPartial", albums);
         }
 
