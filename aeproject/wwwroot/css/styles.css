@@ -11346,3 +11346,17 @@ section#contact form#contactForm :-ms-input-placeholder {
     color: white; /* 更改按鈕文字顏色 */
 }
 
+.button-group {
+    display: flex;
+    flex-direction: row; /* 在桌面顯示時排列為行 */
+    justify-content: center; /* 將按鈕置中 */
+    gap: 15px; /* 按鈕之間的間距 */
+}
+
+@media (max-width: 768px) { /* 手機視圖的最大寬度 */
+    .button-group {
+        flex-direction: column; /* 手機上顯示時排列為列 */
+    }
+}
+
+
