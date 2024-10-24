@@ -15,6 +15,7 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
     <body id="page-top">
         <!-- Navigation-->
@@ -27,7 +28,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="#about aespa">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about_aespa">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="#services" id="album-link">專輯一覽</a></li>
                         <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
                         <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
@@ -42,7 +43,7 @@
                 @RenderBody()
                 <div class="masthead-subheading"></div>
             <div class="masthead-heading text-uppercase">Welcome To My World!</div>
-                <a class="btn btn-primary btn-xl text-uppercase" href="#about aespa">了解更多</a>
+                <a class="btn btn-primary btn-xl text-uppercase" href="#about_aespa">了解更多</a>
             <a class="btn btn-primary btn-xl text-uppercase ms-5" href="#services" >前往購買</a>
             </div>
         </header>
@@ -122,6 +123,32 @@
                     behavior: "smooth"  // 滑動效果
                 });
             });
+        $(document).on('click', '.card-link', function (event) {
+            event.preventDefault();
+            console.log('showModal')
+            // 從 data-album-id 屬性中取得專輯的 ID
+            var albumId = $(this).data('album-id');
+            console.log("Album ID: " + albumId);
+
+            // 使用 fetch 請求專輯的曲目資料
+            fetch(`/Songs/GetSongsByAlbumId?albumId=${albumId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // 生成曲目列表
+                    var songList = '<ul class="list-group">';
+                    data.forEach(song => {
+                        songList += `<li class="list-group-item">${song.songName} - ${song.duration}</li>`;
+                    });
+                    songList += '</ul>';
+
+                    // 將曲目列表顯示在 Modal 中
+                    document.getElementById("modalBody").innerHTML = songList;
+                })
+                .catch(error => {
+                    console.error('Error loading songs:', error);
+                    document.getElementById("modalBody").innerHTML = '無法載入曲目資料。';
+                });
+        });
         </script>
         <!-- Portfolio Grid-->
         <section class="page-section bg-light" id="portfolio">
