@@ -37,12 +37,22 @@
             <div class="modal fade" id="albumModal" tabindex="-1" aria-labelledby="albumModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="albumModalLabel">曲目列表</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body" id="modalBody">
-                            <!-- 曲目資料將顯示在這裡 -->
+                        <div class="modal-body">
+                            <!-- 表格開始 -->
+                            <table class="table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">曲目名稱</th>
+                                        <th scope="col">時長</th>
+                                        <th scope="col">語言</th>
+                                        <th scope="col">發行日期</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalBody">
+                                    <!-- 曲目資料將動態填充在這裡 -->
+                                </tbody>
+                            </table>
+                            <!-- 表格結束 -->
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
@@ -51,66 +61,15 @@
                 </div>
             </div>
 
+
+
+
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 載入專輯列表
-            // fetch('@Url.Action("AlbumListPartial", "Albums")')
-            //     .then(response => response.text())
-            //     .then(data => {
-            //         document.getElementById("album-section").innerHTML = data;
-            //     })
-            //     .catch(error => {
-            //         console.error('Error loading albums:', error);
-            //     });
 
-            
-
-            // 當 Modal 打開時
-            // $('#albumModal').on('show.bs.modal', function (event) {
-                // var button = $(event.relatedTarget); 獲取觸發按鈕
-                // var albumId = button.data('album-id'); 獲取專輯 ID
-                console.log('Album ID:', albumId);
-
-                // 使用 fetch 請求專輯的曲目資料
-                fetch(`/Songs/GetSongsByAlbumId?albumId=${albumId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // 生成曲目列表
-                        var songList = '<ul class="list-group">';
-                        data.forEach(song => {
-                            songList += `<li class="list-group-item">${song.Title} - ${song.Duration}</li>`;
-                        });
-                        songList += '</ul>';
-
-                        // 將曲目列表顯示在 Modal 中
-                        document.getElementById("modalBody").innerHTML = songList;
-                    })
-                    .catch(error => {
-                        console.error('Error loading songs:', error);
-                        document.getElementById("modalBody").innerHTML = '無法載入曲目資料。';
-                    });
-            // });
-
-            $(document).on('click', '.card-link', function (event) {
-                event.preventDefault();
-                console.log('showModal')
-                // 從 data-album-id 屬性中取得專輯的 ID
-                var albumId = $(this).data('album-id');
-                console.log("Album ID: " + albumId);
-
-                // 更新 modal 內容
-                $('#modalBody').html('專輯 ID: ' + albumId + ' 的詳細資料會顯示在這裡。');
-
-                // 顯示 modal
-                $('#albumModal').modal('show');
-            });
-        });
-
-        
     </script>
 }
