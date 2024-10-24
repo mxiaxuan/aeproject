@@ -11331,6 +11331,18 @@ section#contact form#contactForm :-ms-input-placeholder {
     background-color: white; /* 統一表格內容的背景顏色 */
 }
 
-    .custom-table tbody tr td {
-        color: black; /* 表格文字顏色 */
-    }
+.custom-table tbody tr td {
+    color: black; /* 表格文字顏色 */
+}
+
+.custom-footer {
+    border-top: none; /* 隱藏上面的邊框 */
+    padding: 0.5rem; /* 調整內邊距 */
+    justify-content: flex-end; /* 使按鈕靠右對齊 */
+}
+
+.custom-footer .btn {
+    background-color: #000; /* 更改按鈕背景色 */
+    color: white; /* 更改按鈕文字顏色 */
+}
+
