@@ -10,10 +10,11 @@
             <h1>專輯一覽</h1>
             <h6 class="text-muted">依日期排序</h6>
 
+            <input type="text" id="searchInput" class="form-control col-md-6" placeholder="搜尋專輯名稱...">
             <div class="row">
                 @foreach (var item in Model)
                 {
-                    <div class="col-md-3 mt-3">
+                    <div class="col-md-3 mt-3 album-card" data-album-name="@item.AlbumName.ToLower()">
                         <!-- 每行顯示4個卡片 -->
                         <div class="card" style="margin-bottom: 20px;">
                             <img src="@Url.Content(item.AlbumCover)" class="card-img-top" alt="Album Cover" style="max-height: 500px;">
@@ -26,7 +27,7 @@
                                 </p>
                             </div>
                             <div class="card-body text-center">
-                                <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#albumModal" data-album-id="@item.AlbumId">更多詳情</a>
+                                <a href="#" class="card-link details-button" data-bs-toggle="modal" data-bs-target="#albumModal" data-album-id="@item.AlbumId">更多詳情</a>
                             </div>
                         </div>
                     </div>
@@ -57,14 +58,9 @@
                         <div class="modal-footer custom-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
                         </div>
-
                     </div>
                 </div>
             </div>
-
-
-
-
         </div>
     </div>
 </div>

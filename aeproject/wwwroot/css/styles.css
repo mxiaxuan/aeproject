@@ -245,12 +245,13 @@ sup {
   top: -0.5em;
 }
 
-a {
-  color: var(--bs-link-color);
-  text-decoration: underline;
+.details-button {
+    color: #000000;
+    text-decoration: none;
 }
-a:hover {
-  color: var(--bs-link-hover-color);
+
+.details-button:hover {
+    color: #6c757d;
 }
 
 a:not([href]):not([class]), a:not([href]):not([class]):hover {
@@ -11358,5 +11359,39 @@ section#contact form#contactForm :-ms-input-placeholder {
         flex-direction: column; /* 手機上顯示時排列為列 */
     }
 }
+
+.home-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #1e29347a;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; /* 初始隱藏 */
+    transition: opacity 0.3s;
+    pointer-events: none; /* 防止點擊 */
+}
+
+.home-button.visible {
+    opacity: 1; /* 顯示按鈕 */
+    pointer-events: auto;
+}
+
+
+.home-button:hover {
+    background-color: #000912;
+}
+
+
+a:hover {
+    color: #ffffff;
+}
+
 
 

@@ -16,8 +16,12 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     </head>
     <body id="page-top">
+        <a href="/" class="home-button" id="backToHome">
+            <i class="fa-sharp fa-light fa-house"></i> 
+        </a>
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container">
@@ -28,11 +32,11 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="#about_aespa">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#services" id="album-link">專輯一覽</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about_aespa">關於</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#albumview" id="album-link">專輯一覽</a></li>
                         <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
                     </ul>
                 </div>
             </div>
@@ -45,7 +49,7 @@
                 <div class="masthead-heading text-uppercase">Welcome To My World!</div>
                 <div class="button-group">
                     <a class="btn btn-primary btn-xl text-uppercase" href="#about_aespa">了解更多</a>
-                    <a class="btn btn-primary btn-xl text-uppercase" href="#services">前往購買</a>
+                    <a class="btn btn-primary btn-xl text-uppercase" href="#albumview">前往購買</a>
                 </div>
             </div>
         </header>
@@ -106,68 +110,11 @@
                 </div>
             </div>
         </section>
-        <!-- services-->
-        <section class="page-section" id="services">
+        <!-- albumview-->
+        <section class="page-section" id="albumview">
             <div id="album-section"></div>
         </section>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // 請求專輯資料並顯示在 album-section 內
-                fetch('/Albums/AlbumListPartial')
-                    .then(response => response.text())
-                    .then(data => {
-                        document.getElementById("album-section").innerHTML = data;
-                    });
-
-                // 導覽列點擊時滾動到相應位置
-                document.getElementById("album-link").addEventListener("click", function (e) {
-                    e.preventDefault();  // 防止預設的跳轉行為
-                    document.getElementById("services").scrollIntoView({
-                        behavior: "smooth"  // 滑動效果
-                    });
-                });
-
-                $(document).on('click', '.card-link', function (event) {
-                    event.preventDefault();
-                    console.log('showModal');
-
-                    // 從 data-album-id 屬性中取得專輯的 ID
-                    var albumId = $(this).data('album-id');
-                    console.log("Album ID: " + albumId);
-
-                    // 使用 fetch 請求專輯的曲目資料
-                    fetch(`/Songs/GetSongsByAlbumId?albumId=${albumId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            // 生成曲目列表的 tbody 內容
-                            var tbodyContent = '';
-
-                            data.forEach(song => {
-                                tbodyContent += `
-                                        <tr>
-                                            <td>${song.songName}</td>
-                                            <td>${song.duration}</td>
-                                            <td>${song.language}</td>
-                                            <td>${song.releaseDate}</td>
-                                        </tr>
-                                    `;
-                            });
-
-                            // 將曲目列表顯示在 Modal 中
-                            document.getElementById("modalBody").innerHTML = tbodyContent;
-
-                            // 顯示 Modal
-                            $('#albumModal').modal('show');
-                        })
-                        .catch(error => {
-                            console.error('Error loading songs:', error);
-                            document.getElementById("modalBody").innerHTML = '無法載入曲目資料。';
-                        });
-                });
-            });
-        </script>
-
-
+        
         <!-- Portfolio Grid-->
         <section class="page-section bg-light" id="portfolio">
             <div class="container">
