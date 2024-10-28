@@ -1,0 +1,21 @@
+﻿@{
+    Layout = null; // 不使用佈局
+}
+
+<!-- login.cshtml -->
+@{
+    ViewData["Title"] = "登入";
+}
+
+<h2>登入</h2>
+<form method="post" asp-controller="Account" asp-action="Login">
+    <div>
+        <label for="username">帳號:</label>
+        <input type="text" id="username" name="username" required>
+    </div>
+    <div>
+        <label for="password">密碼:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit">登入</button>
+</form>

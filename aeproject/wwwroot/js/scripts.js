@@ -20,7 +20,6 @@ window.addEventListener('DOMContentLoaded', event => {
         } else {
             navbarCollapsible.classList.add('navbar-shrink')
         }
-
     };
 
     // Shrink the navbar 
@@ -29,14 +28,14 @@ window.addEventListener('DOMContentLoaded', event => {
     // Shrink the navbar when page is scrolled
     document.addEventListener('scroll', navbarShrink);
 
-    //  Activate Bootstrap scrollspy on the main nav element
+    // Activate Bootstrap scrollspy on the main nav element
     const mainNav = document.body.querySelector('#mainNav');
     if (mainNav) {
         new bootstrap.ScrollSpy(document.body, {
             target: '#mainNav',
             rootMargin: '0px 0px -40%',
         });
-    };
+    }
 
     // Collapse responsive navbar when toggler is visible
     const navbarToggler = document.body.querySelector('.navbar-toggler');
@@ -51,10 +50,6 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     });
 
-    
-});
-
-document.addEventListener("DOMContentLoaded", function () {
     // 請求專輯資料並顯示在 album-section 內
     fetch('/Albums/AlbumListPartial')
         .then(response => response.text())
@@ -144,15 +139,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
     });
-});
 
-const homeButton = document.getElementById("backToHome");
-const screenHeight = window.innerHeight; // 動態取得螢幕高度
+    // 處理返回首頁按鈕的顯示邏輯
+    const homeButton = document.getElementById("backToHome");
+    const screenHeight = window.innerHeight; // 動態取得螢幕高度
 
-window.addEventListener("scroll", function () {
-    if (window.scrollY > screenHeight) { // 滑動超過一個螢幕高度時顯示按鈕
-        homeButton.classList.add("visible");
-    } else {
-        homeButton.classList.remove("visible");
-    }
+    window.addEventListener("scroll", function () {
+        if (homeButton) { // 確保 homeButton 存在
+            if (window.scrollY > screenHeight) { // 滑動超過一個螢幕高度時顯示按鈕
+                homeButton.classList.add("visible");
+            } else {
+                homeButton.classList.remove("visible");
+            }
+        }
+    });
 });
