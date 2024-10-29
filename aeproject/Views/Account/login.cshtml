@@ -13,6 +13,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>@ViewData["Title"]</title>
     <style>
         body {
@@ -87,6 +88,32 @@
             margin-top: 0.25rem;
             display: none;
         }
+
+        /* 社交按鈕樣式 */
+        .social-btn {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+            .social-btn a {
+                text-align: center;
+                padding: 10px;
+                border-radius: 50%;
+                background-color: #000912;
+                color: white;
+                transition: background-color 0.3s;
+                width: 50px; /* 按鈕寬度 */
+                height: 50px; /* 按鈕高度 */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+                .social-btn a:hover {
+                    background-color: #FFF;
+                    border: 1px solid #000000;
+                }
     </style>
 </head>
 <body>
@@ -118,10 +145,24 @@
                 <span>還沒有帳號嗎?</span>
                 <a href="/Account/Register" class="register-link">點擊註冊</a>
             </div>
+            <!-- 社交登入按鈕 -->
+            <div class="social-btn mt-4">
+                <a href="/Account/LoginWithFacebook" class="btn btn-facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="/Account/LoginWithGoogle" class="btn btn-google">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="/Account/LoginWithLine" class="btn btn-line">
+                    <i class="fab fa-line"></i>
+                </a>
+            </div>
         </form>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // 驗證表單輸入
         document.getElementById("loginForm").addEventListener("submit", function (event) {
             var isValid = true;
             var inputs = document.querySelectorAll("#loginForm .form-control");
