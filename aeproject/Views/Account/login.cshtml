@@ -16,55 +16,92 @@
     <title>@ViewData["Title"]</title>
     <style>
         body {
-            background-color: #f8f9fa; /* 背景顏色 */
+            background-color: #f8f9fa;
         }
 
         .login-container {
-            max-width: 400px; /* 最大寬度 */
-            margin: auto; /* 中心對齊 */
-            padding: 20px; /* 內邊距 */
-            background-color: white; /* 背景顏色 */
-            border: 1px solid #dee2e6; /* 邊框 */
-            border-radius: 5px; /* 圓角 */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 陰影 */
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #000000;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
         .custom-btn {
-            background-color: #131728; /* 自定義背景顏色 */
-            color: white; /* 文字顏色 */
-            border: none; /* 無邊框 */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 陰影 */
+            background-color: #131728;
+            color: white;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .custom-btn:hover {
-            background-color: #ffffff; /* 滑鼠懸停時的顏色 */
-            color: #131728; /* 文字顏色 */
-        }
+            .custom-btn:hover {
+                background-color: #ffffff;
+                color: #131728;
+            }
 
-        .forgot-password {
+        .forgot-password, .register-link {
             color: #81b1c5;
             text-decoration: none;
             transition: color 0.2s;
         }
 
-        .forgot-password:hover {
-            color: #16360a; /* 滑鼠懸停時的顏色 */
-            cursor: pointer; /* 指標改為手形 */
-            text-decoration: none; /* 下劃線 */
+            .forgot-password:hover, .register-link:hover {
+                color: #16360a;
+                text-decoration: none;
+            }
+
+        .form-control:focus {
+            border-color: #666f78;
+            box-shadow: 0 0 5px rgba(129, 177, 197, 0.5);
+            outline: none;
+        }
+
+        /* 註冊文字樣式 */
+        .register-text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* 點擊註冊的樣式 */
+        .register-link {
+            margin-left: 5px;
+            color: #81b1c5;
+            text-decoration: none;
+            padding: 0;
+        }
+
+            .register-link:hover {
+                color: #16360a;
+            }
+
+        /* 錯誤樣式 */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="login-container mt-5">
-        <h2 class="text-center">@ViewData["Title"]</h2>
-        <form method="post" asp-controller="Account" asp-action="Login" class="mt-4">
+        <h5 class="text-center">@ViewData["Title"]</h5>
+        <form id="loginForm" method="post" asp-controller="Account" asp-action="Login" class="mt-4" novalidate>
             <div class="form-group">
                 <label for="username">帳號:</label>
                 <input type="text" id="username" name="username" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
             </div>
             <div class="form-group">
                 <label for="password">密碼:</label>
                 <input type="password" id="password" name="password" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
             </div>
             <div class="d-flex justify-content-between form-check">
                 <div>
@@ -72,11 +109,45 @@
                     <label for="rememberMe" class="form-check-label">記住密碼</label>
                 </div>
                 <div>
-                    <a href="/Account/ForgotPassword" class="forgot-password">忘記密碼？</a> <!-- 自定義樣式的忘記密碼鏈接 -->
+                    <a href="/Account/ForgotPassword" class="forgot-password">忘記密碼？</a>
                 </div>
             </div>
-            <button type="submit" class="btn custom-btn btn-block mt-3">登入</button> <!-- 使用自定義按鈕 -->
+            <button type="submit" class="btn custom-btn btn-block mt-3">登入</button>
+            <!-- 註冊選項 -->
+            <div class="register-text">
+                <span>還沒有帳號嗎?</span>
+                <a href="/Account/Register" class="register-link">點擊註冊</a>
+            </div>
         </form>
     </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function (event) {
+            var isValid = true;
+            var inputs = document.querySelectorAll("#loginForm .form-control");
+
+            inputs.forEach(function (input) {
+                var errorMessage = input.nextElementSibling;
+                if (!input.value.trim()) {
+                    isValid = false;
+                    errorMessage.style.display = "block";
+                    input.classList.add("is-invalid");
+                } else {
+                    errorMessage.style.display = "none";
+                    input.classList.remove("is-invalid");
+                }
+
+                // 隱藏錯誤訊息當欄位取得焦點
+                input.addEventListener("focus", function () {
+                    errorMessage.style.display = "none";
+                    input.classList.remove("is-invalid");
+                });
+            });
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>
