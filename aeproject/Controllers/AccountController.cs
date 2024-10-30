@@ -85,7 +85,7 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(string username, string email, string password)
+    public async Task<IActionResult> Register(string username, string email, string password, string phone, string firstName, string lastName, DateTime dateOfBirth, string gender, string address)
     {
         if (ModelState.IsValid)
         {
@@ -99,26 +99,35 @@ public class AccountController : Controller
                 return View();
             }
 
-            // 創建新用戶
+            // 創建新用戶，並將 DateTime 轉換為 DateOnly
             var user = new User
             {
                 Username = username,
                 Email = email,
-                PasswordHash = HashPassword(password),
+                Phone = phone,
+                FirstName = firstName,
+                LastName = lastName,
+                DateOfBirth = DateOnly.FromDateTime(dateOfBirth), // DateTime 轉換為 DateOnly
+                Gender = gender,
+                Address = address,
                 CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
                 IsActive = true,
-                IsAdmin = false
+                PasswordHash = HashPassword(password) // 使用哈希密碼
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             // 註冊成功後，自動登入
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity(new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim("UserId", user.UserId.ToString())
-            }, CookieAuthenticationDefaults.AuthenticationScheme)));
+            };
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
             return RedirectToAction("Index", "Home");
         }
