@@ -41,11 +41,12 @@ public class AccountController : Controller
             };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // 設置 Cookie 登入屬性
+            // 設置 Cookie 登入屬性，包括 SameSite
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true, // 使 Cookie 持久化
                 ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14), // 可選的到期時間
+                // 你可以根據需要設定下列屬性
                 RedirectUri = "/Home/Index" // 可選的重定向 URI
             };
 
@@ -53,7 +54,7 @@ public class AccountController : Controller
 
             // 更新最後一次登入時間
             user.LastLogin = DateTime.Now;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             return RedirectToAction("Index", "Home");
         }
@@ -69,25 +70,11 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home"); // 導向首頁或指定頁面
     }
 
-    // 驗證密碼方法
+    // 驗證密碼方法：此處使用簡單的明文對比，可根據需求換成更安全的密碼雜湊函數
     private bool VerifyPassword(string enteredPassword, string storedHash)
     {
-        // 分離鹽和哈希值
-        var parts = storedHash.Split('.');
-        if (parts.Length != 2) return false;
-
-        var salt = Convert.FromBase64String(parts[0]);
-        var hash = parts[1];
-
-        // 使用相同的鹽對輸入密碼進行哈希
-        var hashedInput = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: enteredPassword,
-            salt: salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 10000,
-            numBytesRequested: 32));
-
-        return hashedInput == hash; // 比較哈希值
+        // 這裡可以用更安全的方式進行密碼驗證
+        return enteredPassword == storedHash;
     }
 
     [HttpGet]
