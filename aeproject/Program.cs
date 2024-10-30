@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
 
 // 添加服務到容器。
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -30,7 +31,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Account/Login"; // 當未登入時跳轉到登入頁面
     });
-
 
 builder.Services.AddCors(options =>
 {
@@ -63,12 +63,19 @@ app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
 
-// 確保這裡在 UseRouting 和 UseAuthorization 之間
+// 設定路由
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers(); // 映射到 API 控制器
     endpoints.MapDefaultControllerRoute(); // 映射到傳統 MVC 控制器
     endpoints.MapRazorPages(); // 支持 Razor 頁面
+
+    // 為註冊頁面明確定義路由
+    endpoints.MapControllerRoute(
+        name: "register",
+        pattern: "Account/Register",
+        defaults: new { controller = "Account", action = "Register" }
+    );
 });
 
 app.Run();

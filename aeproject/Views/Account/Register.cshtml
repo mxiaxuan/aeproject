@@ -1,0 +1,95 @@
+﻿@{
+    Layout = null; // 不使用佈局
+}
+
+@{
+    ViewData["Title"] = "註冊";
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .register-container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #000000;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .custom-btn {
+            background-color: #131728;
+            color: white;
+            border: none;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container mt-5">
+        <h5 class="text-center">@ViewData["Title"]</h5>
+        <form id="registerForm" method="post" asp-controller="Account" asp-action="Register" class="mt-4" novalidate>
+            <div class="form-group">
+                <label for="username">帳號:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
+            </div>
+            <div class="form-group">
+                <label for="email">電子郵件:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
+            </div>
+            <div class="form-group">
+                <label for="password">密碼:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
+            </div>
+            <button type="submit" class="btn custom-btn btn-block mt-3">註冊</button>
+        </form>
+    </div>
+
+    <script>
+        // 驗證表單輸入
+        document.getElementById("registerForm").addEventListener("submit", function (event) {
+            var isValid = true;
+            var inputs = document.querySelectorAll("#registerForm .form-control");
+
+            inputs.forEach(function (input) {
+                var errorMessage = input.nextElementSibling;
+                if (!input.value.trim()) {
+                    isValid = false;
+                    errorMessage.style.display = "block";
+                    input.classList.add("is-invalid");
+                } else {
+                    errorMessage.style.display = "none";
+                    input.classList.remove("is-invalid");
+                }
+
+                // 隱藏錯誤訊息當欄位取得焦點
+                input.addEventListener("focus", function () {
+                    errorMessage.style.display = "none";
+                    input.classList.remove("is-invalid");
+                });
+            });
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
