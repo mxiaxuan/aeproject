@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using aeproject.Models; // 假設 User 模型在此命名空間
 using aeproject.Data;   // 假設 AespadbContext 在此命名空間
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 
 public class AccountController : Controller
@@ -31,8 +29,8 @@ public class AccountController : Controller
         // 根據用戶名查找用戶
         var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
 
-        // 如果用戶存在並且密碼驗證成功
-        if (user != null && VerifyPassword(password, user.PasswordHash))
+        // 如果用戶存在並且密碼匹配
+        if (user != null && user.PasswordHash == password) // 直接比較密碼
         {
             // 建立認證票據
             var claims = new List<Claim>
@@ -46,16 +44,16 @@ public class AccountController : Controller
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true, // 使 Cookie 持久化
-                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14), // 可選的到期時間
-                RedirectUri = "/Home/Index" // 可選的重定向 URI
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14) // 可選的到期時間
             };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
             // 更新最後一次登入時間
             user.LastLogin = DateTime.Now;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync(); // 確保這裡是異步保存
 
+            // 成功登入後跳轉到首頁
             return RedirectToAction("Index", "Home");
         }
 
@@ -68,26 +66,6 @@ public class AccountController : Controller
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Index", "Home"); // 導向首頁或指定頁面
-    }
-
-    // 驗證密碼方法
-    private bool VerifyPassword(string enteredPassword, string storedHash)
-    {
-        // 將存儲的哈希值分解為鹽和哈希
-        var parts = storedHash.Split('.');
-        var salt = Convert.FromBase64String(parts[0]);
-        var hashed = parts[1];
-
-        // 使用相同的鹽對輸入的密碼進行哈希
-        var hashedInput = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: enteredPassword,
-            salt: salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 10000,
-            numBytesRequested: 32));
-
-        // 比對兩個哈希值
-        return hashedInput == hashed;
     }
 
     [HttpGet]
@@ -126,7 +104,7 @@ public class AccountController : Controller
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 IsActive = true,
-                PasswordHash = HashPassword(password) // 使用哈希密碼
+                PasswordHash = password // 直接儲存明文密碼
             };
 
             _context.Users.Add(user);
@@ -146,24 +124,5 @@ public class AccountController : Controller
         }
 
         return View();
-    }
-
-    // 哈希密碼方法
-    private string HashPassword(string password)
-    {
-        byte[] salt = new byte[16]; // 16 位元組的隨機鹽
-        using (var rng = RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(salt);
-        }
-
-        var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: password,
-            salt: salt,
-            prf: KeyDerivationPrf.HMACSHA256,
-            iterationCount: 10000,
-            numBytesRequested: 32));
-
-        return $"{Convert.ToBase64String(salt)}.{hashed}"; // 儲存鹽和哈希值
     }
 }
