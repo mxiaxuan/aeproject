@@ -29,8 +29,9 @@ public class AccountController : Controller
     public async Task<IActionResult> Login(string username, string password)
     {
         // 根據用戶名查找用戶
-        var user = _context.Users.SingleOrDefault(u => u.Username == username);
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
 
+        // 如果用戶存在並且密碼驗證成功
         if (user != null && VerifyPassword(password, user.PasswordHash))
         {
             // 建立認證票據
@@ -41,12 +42,11 @@ public class AccountController : Controller
             };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // 設置 Cookie 登入屬性，包括 SameSite
+            // 設置 Cookie 登入屬性
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = true, // 使 Cookie 持久化
                 ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14), // 可選的到期時間
-                // 你可以根據需要設定下列屬性
                 RedirectUri = "/Home/Index" // 可選的重定向 URI
             };
 
@@ -70,11 +70,24 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home"); // 導向首頁或指定頁面
     }
 
-    // 驗證密碼方法：此處使用簡單的明文對比，可根據需求換成更安全的密碼雜湊函數
+    // 驗證密碼方法
     private bool VerifyPassword(string enteredPassword, string storedHash)
     {
-        // 這裡可以用更安全的方式進行密碼驗證
-        return enteredPassword == storedHash;
+        // 將存儲的哈希值分解為鹽和哈希
+        var parts = storedHash.Split('.');
+        var salt = Convert.FromBase64String(parts[0]);
+        var hashed = parts[1];
+
+        // 使用相同的鹽對輸入的密碼進行哈希
+        var hashedInput = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: enteredPassword,
+            salt: salt,
+            prf: KeyDerivationPrf.HMACSHA256,
+            iterationCount: 10000,
+            numBytesRequested: 32));
+
+        // 比對兩個哈希值
+        return hashedInput == hashed;
     }
 
     [HttpGet]
