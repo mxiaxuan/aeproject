@@ -7,6 +7,10 @@ using System.Linq;
 using aeproject.Models; // 假設 User 模型在此命名空間
 using aeproject.Data;   // 假設 AespadbContext 在此命名空間
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic; // 添加引用以使用 List
+using System.Net.Http; // 引入 HttpClient
+using System.Net.Http.Headers; // 引入 HttpHeaders
+using System.Text.Json; // 引入 Json 序列化
 
 public class AccountController : Controller
 {
@@ -125,4 +129,120 @@ public class AccountController : Controller
 
         return View();
     }
+
+    [HttpGet]
+    [Route("Account/LineLogin")]
+    public IActionResult LineLogin(string returnUrl = "/")
+    {
+        var redirectUrl = Url.Action("LineCallback", "Account", new { returnUrl });
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        return Challenge(properties, "Line");
+    }
+
+    [HttpGet]
+    [Route("auth/line/callback")]
+    public async Task<IActionResult> LineCallback(string code, string returnUrl = "/")
+    {
+        // 使用 code 獲取 access token 及用戶資料的邏輯
+        var accessToken = await GetAccessToken(code); // 您需要實現這個方法來從 LINE 獲取 access token
+        var userInfo = await GetUserInfo(accessToken); // 使用 access token 獲取用戶資訊
+
+        if (userInfo != null)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == userInfo.Email);
+            if (user == null)
+            {
+                // 如果用戶不存在，可以選擇創建新用戶
+                user = new User
+                {
+                    Username = userInfo.DisplayName, // 使用用戶的顯示名稱
+                    Email = userInfo.Email,
+                    // 其他必要的屬性
+                    PasswordHash = string.Empty // 或其他適合的預設值
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+            }
+
+            // 登入用戶
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim("UserId", user.UserId.ToString())
+            };
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            return LocalRedirect(returnUrl);
+        }
+
+        return RedirectToAction("Login");
+    }
+
+    [HttpGet]
+    [Route("Account/LoginWithLine")]
+    public IActionResult LoginWithLine(string returnUrl = "/")
+    {
+        return RedirectToAction("LineLogin", new { returnUrl });
+    }
+
+    private async Task<string> GetAccessToken(string code)
+    {
+        using (var client = new HttpClient())
+        {
+            var values = new Dictionary<string, string>
+            {
+                { "grant_type", "authorization_code" },
+                { "code", code },
+                { "redirect_uri", "https://localhost:7141/auth/line/callback" },
+                { "client_id", "2006525664" }, // 使用您的 LINE Channel ID
+                { "client_secret", "5bd5d69b01beb519c817bc2e4646d6b2" } // 使用您的 LINE Channel Secret
+            };
+
+            var content = new FormUrlEncodedContent(values);
+            var response = await client.PostAsync("https://api.line.me/oauth2/v2.1/token", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(responseContent);
+                return tokenResponse.AccessToken; // 返回 access token
+            }
+            return null; // 返回 null 代表獲取失敗
+        }
+    }
+
+    private async Task<UserInfo> GetUserInfo(string accessToken)
+    {
+        using (var client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await client.GetAsync("https://api.line.me/v2/profile");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<UserInfo>(responseContent); // 反序列化為 UserInfo 對象
+            }
+            return null; // 返回 null 代表獲取失敗
+        }
+    }
 }
+
+// TokenResponse 類
+public class TokenResponse
+{
+    public string AccessToken { get; set; }
+    // 可以添加其他必要的屬性
+}
+
+// UserInfo 類
+public class UserInfo
+{
+    public string UserId { get; set; }
+    public string DisplayName { get; set; }
+    public string Email { get; set; } // 如果需要用戶電子郵件
+    // 可以添加其他必要的屬性
+}
+

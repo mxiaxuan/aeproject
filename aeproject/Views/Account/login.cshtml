@@ -1,4 +1,4 @@
-﻿﻿@{
+﻿@{
     Layout = null; // 不使用佈局
 }
 
@@ -37,10 +37,10 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-            .custom-btn:hover {
-                background-color: #ffffff;
-                color: #131728;
-            }
+        .custom-btn:hover {
+            background-color: #ffffff;
+            color: #131728;
+        }
 
         .forgot-password, .register-link {
             color: #81b1c5;
@@ -48,10 +48,10 @@
             transition: color 0.2s;
         }
 
-            .forgot-password:hover, .register-link:hover {
-                color: #16360a;
-                text-decoration: none;
-            }
+        .forgot-password:hover, .register-link:hover {
+            color: #16360a;
+            text-decoration: none;
+        }
 
         .form-control:focus {
             border-color: #666f78;
@@ -77,9 +77,9 @@
             padding: 0;
         }
 
-            .register-link:hover {
-                color: #16360a;
-            }
+        .register-link:hover {
+            color: #16360a;
+        }
 
         /* 錯誤樣式 */
         .error-message {
@@ -96,24 +96,24 @@
             justify-content: space-around;
         }
 
-            .social-btn a {
-                text-align: center;
-                padding: 10px;
-                border-radius: 50%;
-                background-color: #000912;
-                color: white;
-                transition: background-color 0.3s;
-                width: 50px; /* 按鈕寬度 */
-                height: 50px; /* 按鈕高度 */
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
+        .social-btn a {
+            text-align: center;
+            padding: 10px;
+            border-radius: 50%;
+            background-color: #000912;
+            color: white;
+            transition: background-color 0.3s;
+            width: 50px; /* 按鈕寬度 */
+            height: 50px; /* 按鈕高度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-                .social-btn a:hover {
-                    background-color: #FFF;
-                    border: 1px solid #000000;
-                }
+        .social-btn a:hover {
+            background-color: #FFF;
+            border: 1px solid #000000;
+        }
     </style>
 </head>
 <body>
@@ -147,13 +147,13 @@
             </div>
             <!-- 社交登入按鈕 -->
             <div class="social-btn mt-4">
-                <a href="/Account/LoginWithFacebook" class="btn btn-facebook">
+                <a href="/Account/LoginWithFacebook" class="btn btn-facebook" title="使用 Facebook 登入">
                     <i class="fab fa-facebook-f"></i>
                 </a>
-                <a href="/Account/LoginWithGoogle" class="btn btn-google">
-                    <i class="fab fa-google"></i>
+                <a href="/Account/LoginWithLine" class="btn btn-line" title="使用 LINE 登入">
+                    <i class="fab fa-line"></i>
                 </a>
-                <a href="/Account/LoginWithLine" class="btn btn-line">
+                <a href="/Account/LoginWithLine" class="btn btn-line" title="使用 LINE 登入">
                     <i class="fab fa-line"></i>
                 </a>
             </div>
