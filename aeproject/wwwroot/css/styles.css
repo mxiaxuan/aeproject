@@ -11361,6 +11361,7 @@ section#contact form#contactForm :-ms-input-placeholder {
 }
 
 .home-button {
+    z-index: 9999; /* 確保在其他元素上方 */
     position: fixed;
     bottom: 20px;
     right: 20px;
