@@ -40,6 +40,7 @@
         .custom-btn:hover {
             background-color: #ffffff;
             color: #131728;
+            border: 1px solid #000000;
         }
 
         .forgot-password, .register-link {
@@ -59,7 +60,6 @@
             outline: none;
         }
 
-        /* 註冊文字樣式 */
         .register-text {
             display: flex;
             justify-content: center;
@@ -69,7 +69,6 @@
             color: #666;
         }
 
-        /* 點擊註冊的樣式 */
         .register-link {
             margin-left: 5px;
             color: #81b1c5;
@@ -81,7 +80,6 @@
             color: #16360a;
         }
 
-        /* 錯誤樣式 */
         .error-message {
             color: #dc3545;
             font-size: 0.8rem;
@@ -89,7 +87,13 @@
             display: none;
         }
 
-        /* 社交按鈕樣式 */
+        .login-error {
+            color: #dc3545;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
         .social-btn {
             margin-top: 10px;
             display: flex;
@@ -103,8 +107,8 @@
             background-color: #000912;
             color: white;
             transition: background-color 0.3s;
-            width: 50px; /* 按鈕寬度 */
-            height: 50px; /* 按鈕高度 */
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -114,12 +118,29 @@
             background-color: #FFF;
             border: 1px solid #000000;
         }
+
+        .custom-alert {
+            max-width: 300px; /* 自訂最大寬度 */
+            max-height: 50px; /* 自訂最大高度 */
+            font-size: 0.9rem; /* 自訂字體大小 */
+            margin: 0 auto; /* 使警報在中心顯示 */
+        }
     </style>
 </head>
 <body>
     <div class="login-container mt-5">
         <h5 class="text-center">@ViewData["Title"]</h5>
+
         <form id="loginForm" method="post" asp-controller="Account" asp-action="Login" class="mt-4" novalidate>
+            @if (ViewBag.LoginFailed != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show custom-alert mb-3" role="alert">
+                    @ViewBag.LoginFailed
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
             <div class="form-group">
                 <label for="username">帳號:</label>
                 <input type="text" id="username" name="username" class="form-control" required>
@@ -130,26 +151,12 @@
                 <input type="password" id="password" name="password" class="form-control" required>
                 <div class="error-message">請填寫這個欄位</div>
             </div>
-            <div class="d-flex justify-content-between form-check">
-                <div>
-                    <input type="checkbox" id="rememberMe" name="rememberMe" class="form-check-input">
-                    <label for="rememberMe" class="form-check-label">記住密碼</label>
-                </div>
-                <div>
-                    <a href="/Account/ForgotPassword" class="forgot-password">忘記密碼？</a>
-                </div>
-            </div>
-            <button type="submit" class="btn custom-btn btn-block mt-3">登入</button>
-            <!-- 註冊選項 -->
-            <div class="register-text">
+            <button type="submit" class="btn custom-btn btn-block mt-5">登入</button>
+            <div class="register-text mb-3">
                 <span>還沒有帳號嗎?</span>
                 <a href="/Account/Register" class="register-link">點擊註冊</a>
             </div>
-            <!-- 社交登入按鈕 -->
-            <div class="social-btn mt-4">
-                <a href="/Account/LoginWithFacebook" class="btn btn-facebook" title="使用 Facebook 登入">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
+            <div class="social-btn mt-6">
                 <a href="/Account/LoginWithGoogle" class="btn btn-google" title="使用 Google 登入">
                     <i class="fab fa-google"></i>
                 </a>
@@ -161,8 +168,10 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script>
-        // 驗證表單輸入
         document.getElementById("loginForm").addEventListener("submit", function (event) {
             var isValid = true;
             var inputs = document.querySelectorAll("#loginForm .form-control");
@@ -178,7 +187,6 @@
                     input.classList.remove("is-invalid");
                 }
 
-                // 隱藏錯誤訊息當欄位取得焦點
                 input.addEventListener("focus", function () {
                     errorMessage.style.display = "none";
                     input.classList.remove("is-invalid");

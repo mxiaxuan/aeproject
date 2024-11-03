@@ -38,10 +38,10 @@ public class AccountController : Controller
         {
             // 建立認證票據
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("UserId", user.UserId.ToString())
-            };
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim("UserId", user.UserId.ToString())
+        };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             // 設置 Cookie 登入屬性
@@ -61,9 +61,11 @@ public class AccountController : Controller
             return RedirectToAction("Index", "Home");
         }
 
-        ModelState.AddModelError(string.Empty, "無效的帳號或密碼");
+        // 登入失敗，將錯誤訊息傳遞到視圖
+        ViewBag.LoginFailed = "無效的帳號或密碼";
         return View();
     }
+
 
     [HttpPost]
     public async Task<IActionResult> Logout()
