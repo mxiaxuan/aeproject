@@ -225,7 +225,7 @@ public class AccountController : Controller
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<UserInfo>(responseContent); // 反序列化為 UserInfo 對象
+                return JsonSerializer.Deserialize<UserInfo>(responseContent); // 反序列化為 UserInfo 對象 
             }
             return null; // 返回 null 代表獲取失敗
         }

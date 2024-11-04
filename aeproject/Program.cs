@@ -148,6 +148,6 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapDefaultControllerRoute(); // 映射到傳統 MVC 控制器
     endpoints.MapRazorPages(); // 支持 Razor 頁面
-});
+}); 
 
 app.Run();
