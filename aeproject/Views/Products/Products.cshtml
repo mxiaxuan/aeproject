@@ -9,8 +9,6 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
     <title>ae shop - Product</title>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -20,17 +18,16 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
-        /* 固定導覽列 */
         .navbar {
             position: sticky;
             top: 0;
             z-index: 1020;
-            padding-top: 3px; /* 減少上邊距 */
-            padding-bottom: 3px; /* 減少下邊距 */
+            padding-top: 3px;
+            padding-bottom: 3px;
         }
 
         .home-button {
-            z-index: 9999; /* 確保在其他元素上方 */
+            z-index: 9999;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -43,70 +40,125 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0; /* 初始隱藏 */
+            opacity: 0;
             transition: opacity 0.3s;
-            pointer-events: none; /* 防止點擊 */
+            pointer-events: none;
         }
 
-        .home-button.visible {
-            opacity: 1; /* 顯示按鈕 */
-            pointer-events: auto;
-        }
+            .home-button.visible {
+                opacity: 1;
+                pointer-events: auto;
+            }
 
-        .home-button:hover {
-            background-color: #000912;
-        }
+            .home-button:hover {
+                background-color: #000912;
+                color: white;
+            }
 
         body {
-            background-color: #938b8bb0;
+            background: linear-gradient(to bottom, #f0f8ff, #000000cc);
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
 
-        /* 調整輪播的尺寸 */
         .carousel,
         .carousel-inner,
         .carousel-item {
             width: 100%;
-            height: 60vh; /* 設定高度為視窗高度的60% */
+            height: 60vh;
         }
 
         .carousel-img {
             width: 100%;
-            height: 100%; /* 填滿整個容器 */
-            object-fit: cover; /* 等比例裁切圖片，避免黑框 */
+            height: 100%;
+            object-fit: cover;
         }
 
         .carousel-indicators {
-            margin-top: -30px; /* 向上移動按鈕 */
+            margin-top: -30px;
         }
 
-        .carousel-indicators button {
-            background-color: transparent; /* 使背景透明 */
+            .carousel-indicators button {
+                background-color: rgba(255, 255, 255, 0.5);
+                border: none;
+                width: 50px;
+                height: 5px;
+                border-radius: 0%;
+                transition: background-color 0.3s ease, transform 0.1s ease;
+                margin-right: 10px;
+            }
+
+            .carousel-indicators .active {
+                background-color: rgba(255, 255, 255, 0.75);
+            }
+
+            .carousel-indicators button:active {
+                background-color: rgba(255, 255, 255, 1);
+                transform: scale(1.2);
+            }
+
+        .card-title {
+            font-size: 0.9rem;
+        }
+
+        /* 調整卡片容器樣式，背景變黑色，並移除邊框 */
+        .product-card .card {
+            background-color: black; /* 設定背景為黑色 */
             border: none; /* 移除邊框 */
-            width: 50px; /* 調整圓點的寬度 */
-            height: 5px; /* 調整圓點的高度 */
-            border-radius: 0%; /* 圓形 */
-            background-color: rgba(255, 255, 255, 0.5); /* 設定圓點顏色及透明度 */
-            transition: background-color 0.3s ease, transform 0.1s ease; /* 加入過渡效果 */
-            margin-right: 10px; /* 設定按鈕之間的間隔 */
+            width: 250px;
+            height: 380px; /* 調整卡片高度 */
+            margin-bottom: 20px;
+            overflow: hidden;
+            text-decoration: none;
+            color: white; /* 文字顏色為白色 */
         }
 
-        /* 當選中的按鈕 */
-        .carousel-indicators .active {
-            background-color: rgba(255, 255, 255, 0.75); /* 當選中時顯示更亮的圓點 */
+            .product-card .card:hover {
+                transform: scale(1.05);
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            }
+
+        .product-card .card-img-top {
+            height: 300px; /* 設定固定高度 */
+            width: 100%;
+            object-fit: cover; /* 讓圖片填滿容器，並裁切多餘部分 */
         }
 
-        /* 按鈕被點擊時的效果 */
-        .carousel-indicators button:active {
-            background-color: rgba(255, 255, 255, 1); /* 按下時顯示較明亮的顏色 */
-            transform: scale(1.2); /* 稍微放大按鈕 */
+
+        /* 調整卡片內文部分，讓文字靠左對齊 */
+        .product-card .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left; /* 文字靠左對齊 */
+            padding: 5px;
+        }
+
+        /* 調整標題和價格的字型大小 */
+        .product-card .card-title {
+            font-size: 0.7rem; /* 調小字體 */
+            margin-bottom: 5px;
+        }
+
+        .product-card .card-text {
+            font-size: 0.75rem; /* 調小字體 */
+            color: #ccc; /* 更淡的顏色 */
+        }
+
+        /* 調整卡片在 hover 時的效果 */
+        .product-card .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body id="page-top">
-    <a href="/" class="home-button" id="backToHome">
+    <a href="@Url.Action("Index", "Products")" class="home-button" id="backToHome">
         <i class="fa-sharp fa-light fa-house"></i>
     </a>
-    <!-- Navigation-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#page-top">
@@ -173,98 +225,46 @@
     </header>
 
     <div class="container">
-        <h1 class="text-center mt-5">產品展示</h1>
-        <input type="text" id="searchInput" class="form-control col-md-6 mx-auto" placeholder="搜尋產品名稱...">
+        <input type="text" id="searchInput" class="form-control col-md-6 mx-auto mt-5" placeholder="搜尋產品名稱...">
 
-        <div class="row justify-content-center mt-4">
-            @foreach (var product in Model)
-            {
-                <div class="col-md-3 mt-3 product-card" data-product-name="@product.ProductName.ToLower()">
-                    <div class="card" style="margin-bottom: 20px;">
-                        <img src="@Url.Content(product.ProductImage)" class="card-img-top" alt="@product.ProductName" style="max-height: 300px;">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">@Html.DisplayFor(modelItem => product.ProductName)</h5>
-                            <p class="card-text text-center">
-                                價格: @product.Price.ToString("F0")元
-                            </p>
-                        </div>
-                        <div class="card-body text-center">
-                            <a href="#" class="card-link details-button" data-toggle="modal" data-target="#productModal" data-product-id="@product.ProductId">詳細</a>
-                        </div>
+        <div class="container mt-4">
+    <div class="row justify-content-start">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-3 mt-3 product-card" data-product-name="@product.ProductName.ToLower()">
+                <a href="@Url.Action("Details", "Products", new { id = product.ProductId })" class="card">
+                    <img src="@Url.Content(product.ProductImage)" class="card-img-top" alt="@product.ProductName">
+                    <div class="card-body">
+                        <h5 class="card-title">@Html.DisplayFor(modelItem => product.ProductName)</h5>
+                        <p class="card-text">NT $@product.Price.ToString("F0")</p>
                     </div>
-                </div>
-            }
-        </div>
-    </div>
-
-    <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productModalLabel">產品詳細資訊</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <h5 id="productModalName"></h5>
-                    <img id="productModalImage" class="d-block w-100" alt="Product Image">
-                    <p id="productModalPrice"></p>
-                    <p id="productModalDescription"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
-                </div>
+                </a>
             </div>
-        </div>
+        }
+    </div>
+</div>
+
     </div>
 
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container text-center">
-            <small>&copy; 2024 ae shop</small>
-        </div>
-    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 顯示返回首頁按鈕
-        window.addEventListener("scroll", function() {
-            var backToHomeButton = document.getElementById("backToHome");
-            if (window.scrollY > 300) {
-                backToHomeButton.classList.add("visible");
-            } else {
-                backToHomeButton.classList.remove("visible");
-            }
-        });
-
-        // 搜尋功能
-        document.getElementById('searchInput').addEventListener('input', function() {
-            var query = this.value.toLowerCase();
-            var products = document.querySelectorAll('.product-card');
-            products.forEach(function(product) {
-                var productName = product.getAttribute('data-product-name');
-                if (productName.includes(query)) {
-                    product.style.display = 'block';
-                } else {
-                    product.style.display = 'none';
-                }
+        // Search bar functionality
+        $(document).ready(function () {
+            $('#searchInput').on('keyup', function () {
+                var value = $(this).val().toLowerCase();
+                $('.product-card').filter(function () {
+                    $(this).toggle($(this).data('product-name').indexOf(value) > -1);
+                });
             });
-        });
 
-        // 顯示商品詳細資訊
-        $('#productModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var productId = button.data('product-id');
-            var modal = $(this);
-
-            $.ajax({
-                url: '/Products/Details/' + productId,
-                method: 'GET',
-                success: function(product) {
-                    modal.find('#productModalName').text(product.ProductName);
-                    modal.find('#productModalImage').attr('src', product.ProductImage);
-                    modal.find('#productModalPrice').text('價格: ' + product.Price + '元');
-                    modal.find('#productModalDescription').text(product.Description);
+            var homeButton = $('#backToHome');
+            $(window).scroll(function () {
+                if ($(this).scrollTop() > 100) {
+                    homeButton.addClass('visible');
+                } else {
+                    homeButton.removeClass('visible');
                 }
             });
         });
