@@ -18,6 +18,19 @@ namespace aeproject.Controllers
             var products = _context.Products.ToList();
             return View("Products", products); // 指定使用 Products.cshtml 檔案
         }
+
+        // 商品詳細頁
+        public IActionResult Details(int id)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
+        }
     }
 }
 
