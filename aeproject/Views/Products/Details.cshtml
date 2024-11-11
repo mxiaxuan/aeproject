@@ -25,35 +25,6 @@
             padding-bottom: 3px;
         }
 
-        .home-button {
-            z-index: 9999;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #1e29347a;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-            .home-button.visible {
-                opacity: 1;
-                pointer-events: auto;
-            }
-
-            .home-button:hover {
-                background-color: #000912;
-                color: white;
-            }
-
         body {
             background: linear-gradient(to bottom, #f0f8ff, #000000cc);
             background-attachment: fixed;
@@ -66,7 +37,7 @@
         .product-details-container {
             display: flex;
             align-items: flex-start;
-            padding: 50px; /* 調整內距 */
+            padding: 50px;
             background-color: #ffffff3d;
             color: black;
             border-radius: 8px;
@@ -76,7 +47,7 @@
 
         .product-image {
             flex: 0 0 40%;
-            margin-right: 20px; /* 調整圖片和文字間距 */
+            margin-right: 20px;
         }
 
             .product-image img {
@@ -90,25 +61,20 @@
         }
 
         .product-title {
-            font-size: 1.4rem; /* 略調小 */
+            font-size: 1.4rem;
             font-weight: bold;
             margin-bottom: 6px;
         }
 
         .product-price {
-            font-size: 1.1rem; /* 略調小 */
+            font-size: 1.1rem;
             color: red;
             margin-bottom: 6px;
         }
 
         .divider {
             border-top: 1px solid #555;
-            margin: 6px 0; /* 更窄的分隔線 */
-        }
-
-        .product-description {
-            font-size: 0.85rem;
-            margin-bottom: 8px;
+            margin: 6px 0;
         }
 
         .product-stock {
@@ -119,13 +85,103 @@
 
         .add-to-cart {
             font-size: 0.85rem;
-            padding: 6px 12px; /* 更緊湊的按鈕 */
+            padding: 6px 12px;
         }
 
-        .product-description {
+        /* 手風琴樣式 */
+        .accordion .card-header {
+            background-color: #343a40;
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 5px;
+        }
+
+        .accordion-button {
+            color: white;
+            font-size: 0.8rem;
+            text-align: left;
+            width: 100%;
+            padding: 0.1rem 1rem;
+            background-color: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: start; /* 調整為左對齊 */
+        }
+
+            .accordion-button:hover {
+                color: #FFF;
+            }
+
+            .accordion-button:focus {
+                box-shadow: none;
+            }
+
+        /* 旋轉的三角形圖示 */
+        .accordion-icon {
+            transition: transform 0.3s ease;
+            margin-left: auto; /* 讓圖示在右側 */
+        }
+
+            .accordion-icon.rotate {
+                transform: rotate(180deg);
+            }
+
+        /* 手風琴內容樣式 */
+        .accordion .card-body {
+            font-size: 0.8rem;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 0.5rem 1rem 1rem;
             white-space: pre-line;
         }
 
+        .quantity-selector {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+            .quantity-selector label {
+                margin-right: 10px;
+                font-weight: bold;
+            }
+
+            .quantity-selector input[type="number"] {
+                width: 60px;
+                text-align: center;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-right: 10px;
+            }
+
+        .btn-custom {
+            background-color: #000;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .btn-add-to-cart {
+            background-color: #000;
+            color: white;
+            margin-right: 10px;
+        }
+
+            .btn-add-to-cart:hover {
+                background-color: #FFF;
+            }
+
+        .btn-buy-now {
+            background-color: #000;
+            color: white;
+        }
+
+            .btn-buy-now:hover {
+                background-color: #FFF;
+            }
     </style>
 </head>
 <body id="page-top">
@@ -174,17 +230,46 @@
             <h2 class="product-title">@Model.ProductName</h2>
             <p class="product-price text-danger">NT$@String.Format("{0:N0}", Model.Price)</p>
             <hr class="divider" />
-            <p class="product-description">@Model.Description</p>
+
+            <!-- 手風琴效果 -->
+            <div class="accordion" id="productAccordion">
+                <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" onclick="toggleIcon(this)">
+                            Product Detail
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </button>
+                    </div>
+
+                    <div id="collapseOne" class="collapse show mt-0" aria-labelledby="headingOne" data-parent="#productAccordion">
+                        <div class="card-body">
+                            @Model.Description
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="divider" />
+            <div class="quantity-selector">
+                <label for="quantity">數量：</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" max="@Model.StockQuantity" />
+            </div>
+
             <p class="product-stock">庫存數量: @Model.StockQuantity</p>
-            <button class="btn btn-primary add-to-cart">加入購物車</button>
+
+            <!-- 修改後的按鈕樣式 -->
+            <button class="btn btn-custom btn-add-to-cart">加入購物車</button>
+            <button class="btn btn-custom btn-buy-now ms-3">購買</button>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     <script>
-
+        function toggleIcon(button) {
+            const icon = button.querySelector('.accordion-icon');
+            icon.classList.toggle('rotate');
+        }
     </script>
 </body>
 </html>
