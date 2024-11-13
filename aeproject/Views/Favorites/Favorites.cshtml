@@ -1,0 +1,93 @@
+﻿@{
+    Layout = null; // 不使用佈局
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>ae shop - Favorites</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+
+    </style>
+</head>
+<body id="page-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <div class="navbar-left d-flex align-items-center">
+                <a class="navbar-brand" href="#page-top">
+                    <img src="~/assets/img/aespalogo.png" alt="Logo" style="max-width: 80px; height: auto;" />
+                </a>
+            </div>
+            <div class="navbar-right d-flex align-items-center ml-auto">
+                <ul class="navbar-nav align-items-center">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> @User.Identity.Name
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item">登出</button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">登入</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    @model IEnumerable<Favorite>
+    <div class="favorites-list">
+        @foreach (var favorite in Model)
+        {
+            <div class="product-card">
+                <img src="@favorite.Product.ProductImage" alt="@favorite.Product.ProductName" />
+                <h3>@favorite.Product.ProductName</h3>
+                <p>@favorite.Product.Price</p>
+                <form method="post" asp-action="RemoveFromFavorites">
+                    <input type="hidden" name="productId" value="@favorite.ProductId" />
+                    <button type="submit">移除</button>
+                </form>
+            </div>
+        }
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous"></script>
+    <script>
+        $('.heart-icon').on('click', function () {
+            var productId = $(this).data('product-id');
+            var action = $(this).hasClass('is-favorite') ? 'remove' : 'add';
+
+            $.ajax({
+                url: '/UserFavorite/' + action + 'ToFavorites',
+                type: 'POST',
+                data: { productId: productId },
+                success: function () {
+                    $(this).toggleClass('is-favorite');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

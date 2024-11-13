@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     Layout = null; // 不使用佈局
 }
 
@@ -248,7 +248,6 @@
 
         .card {
             width: 100%; /* Ensure the card takes up its allotted space */
-            max-width: 150px; /* Adjust the card width */
             flex-shrink: 0; /* Prevent card from shrinking */
         }
 
@@ -370,7 +369,7 @@
         var recommendedProducts = ViewData["RecommendedProducts"] as List<aeproject.Models.Product>;
     }
 
-    
+
     <div class="recommended-products-container">
         <div class="d-flex overflow-auto">
             @foreach (var recommended in recommendedProducts)
