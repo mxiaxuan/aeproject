@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using aeproject.Models;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using aeproject.Models;
-using System.Security.Claims;
 
 public class UserFavoriteController : Controller
 {
     private readonly AespadbContext _context;
 
+    // 直接使用 AespadbContext 來獲取用戶資料
     public UserFavoriteController(AespadbContext context)
     {
         _context = context;
@@ -17,9 +18,9 @@ public class UserFavoriteController : Controller
     // 1. 顯示使用者的收藏頁面
     public async Task<IActionResult> Favorites()
     {
-        var userId = GetCurrentUserId();  // 獲取當前登入使用者的ID
+        var userId = await GetCurrentUserId();  // 獲取當前登入使用者的ID
         var favorites = await _context.Favorites
-            .Where(f => f.UserId == userId)
+            .Where(f => f.UserId == userId)  // 根據 UserId 查找收藏的商品
             .Include(f => f.Product)  // 獲取商品資料
             .ToListAsync();
 
@@ -30,7 +31,7 @@ public class UserFavoriteController : Controller
     [HttpPost]
     public async Task<IActionResult> AddToFavorites(int productId)
     {
-        var userId = GetCurrentUserId();  // 獲取當前登入使用者的ID
+        var userId = await GetCurrentUserId();  // 獲取當前登入使用者的ID
 
         // 檢查是否已經收藏過該商品
         var existingFavorite = await _context.Favorites
@@ -40,7 +41,7 @@ public class UserFavoriteController : Controller
         {
             var favorite = new Favorite
             {
-                UserId = userId,
+                UserId = userId,  // 使用當前登入使用者的 ID
                 ProductId = productId
             };
 
@@ -55,7 +56,7 @@ public class UserFavoriteController : Controller
     [HttpPost]
     public async Task<IActionResult> RemoveFromFavorites(int productId)
     {
-        var userId = GetCurrentUserId();  // 獲取當前登入使用者的ID
+        var userId = await GetCurrentUserId();  // 獲取當前登入使用者的ID
 
         var favorite = await _context.Favorites
             .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
@@ -70,15 +71,17 @@ public class UserFavoriteController : Controller
     }
 
     // 取得當前登入使用者的ID
-    private int GetCurrentUserId()
+    private async Task<int> GetCurrentUserId()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+        // 嘗試將 User.Identity.Name 轉換為整數，這裡假設 User.Identity.Name 是一個存儲使用者 ID 的字串
+        if (int.TryParse(User.Identity.Name, out int userId))
         {
-            return userId;
+            return userId;  // 如果轉換成功，返回 userId
         }
-
-        throw new Exception("使用者未登入");
+        else
+        {
+            // 如果轉換失敗，則拋出異常或根據需求處理
+            throw new Exception("無效的使用者 ID");
+        }
     }
 }

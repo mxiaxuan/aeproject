@@ -15,7 +15,40 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
+        .favorites-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
 
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+            .product-card img {
+                width: 100%;
+                height: auto;
+                border-radius: 8px;
+            }
+
+            .product-card button {
+                background-color: #f44336;
+                color: white;
+                border: none;
+                padding: 10px;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+                .product-card button:hover {
+                    background-color: #d32f2f;
+                }
     </style>
 </head>
 <body id="page-top">
@@ -57,10 +90,10 @@
         @foreach (var favorite in Model)
         {
             <div class="product-card">
-                <img src="@favorite.Product.ProductImage" alt="@favorite.Product.ProductName" />
+                <img src="~/images/@favorite.Product.ProductImage" alt="@favorite.Product.ProductName" />
                 <h3>@favorite.Product.ProductName</h3>
-                <p>@favorite.Product.Price</p>
-                <form method="post" asp-action="RemoveFromFavorites">
+                <p>NT$@String.Format("{0:N0}", favorite.Product.Price)</p>
+                <form method="post" asp-controller="UserFavorite" asp-action="RemoveFromFavorites">
                     <input type="hidden" name="productId" value="@favorite.ProductId" />
                     <button type="submit">移除</button>
                 </form>
