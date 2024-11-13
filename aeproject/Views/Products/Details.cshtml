@@ -227,6 +227,51 @@
             .btn-buy-now:active {
                 border: 1px solid #000; /* 添加黑色邊框 */
             }
+
+        .recommended-products-container {
+            overflow-x: auto;
+            padding-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            padding: 100px;
+            color: black;
+            border-radius: 8px;
+            max-width: 1900px;
+            margin: 20px auto;
+        }
+
+        .d-flex {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 15px; /* Adjust spacing between cards */
+        }
+
+        .card {
+            width: 100%; /* Ensure the card takes up its allotted space */
+            max-width: 150px; /* Adjust the card width */
+            flex-shrink: 0; /* Prevent card from shrinking */
+        }
+
+        .card-body {
+            padding: 10px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-text {
+            font-size: 12px;
+        }
+
+        .card-img-top {
+            height: 80px; /* Control image height */
+            object-fit: cover; /* Ensure image covers the card space without distortion */
+        }
     </style>
 </head>
 <body id="page-top">
@@ -319,6 +364,30 @@
             </div>
         </div>
     </div>
+
+    @{
+        var product = ViewData["Product"] as aeproject.Models.Product;
+        var recommendedProducts = ViewData["RecommendedProducts"] as List<aeproject.Models.Product>;
+    }
+
+    
+    <div class="recommended-products-container">
+        <div class="d-flex overflow-auto">
+            @foreach (var recommended in recommendedProducts)
+            {
+                <div class="card me-3" style="max-width: 250px; flex-shrink: 0;">
+                    <a href="@Url.Action("Details", "Products", new { id = recommended.ProductId })">
+                        <img src="@recommended.ProductImage" class="card-img-top" alt="@recommended.ProductName" style="width: 100%; height: auto;" />
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@recommended.ProductName</h5>
+                        <p class="card-text">NT$@String.Format("{0:N0}", recommended.Price)</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>

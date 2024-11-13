@@ -29,6 +29,15 @@ namespace aeproject.Controllers
                 return NotFound();
             }
 
+            // 根據 AlbumId 查詢同一專輯的其他商品（排除當前商品）
+            var recommendedProducts = _context.Products
+                                              .Where(p => p.AlbumId == product.AlbumId && p.ProductId != product.ProductId)
+                                              .ToList();
+
+            // 使用 ViewData 或 ViewBag 傳遞資料
+            ViewData["Product"] = product;
+            ViewData["RecommendedProducts"] = recommendedProducts;
+
             return View(product);
         }
     }
