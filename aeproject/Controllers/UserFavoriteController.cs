@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using aeproject.Models;
+using System.Security.Claims;
 
 public class UserFavoriteController : Controller
 {
@@ -68,11 +69,16 @@ public class UserFavoriteController : Controller
         return RedirectToAction("Favorites");  // 重定向到收藏頁面
     }
 
-    // 取得當前登入使用者的ID（假設你有一個方法來獲取使用者ID）
+    // 取得當前登入使用者的ID
     private int GetCurrentUserId()
     {
-        // 這裡可以根據你的需求獲取當前用戶的ID
-        // 例如，從用戶的認證信息中獲取ID
-        return 1;  // 假設用戶ID為1，實際應該從Session或JWT中獲取
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+        {
+            return userId;
+        }
+
+        throw new Exception("使用者未登入");
     }
 }
