@@ -406,16 +406,24 @@
         }
 
         function addToFavorites() {
-            const icon = document.getElementById("favoriteIcon");
-            if (icon.style.color === "black") {
-                icon.style.color = "#FFF";  // 還原未收藏狀態
-                // 在這裡可以執行取消收藏的邏輯，例如從收藏頁移除
-                console.log("已從收藏移除");
-            } else {
-                icon.style.color = "black";   // 設置為收藏狀態
-                // 在這裡可以執行加入收藏的邏輯，例如將商品加入收藏頁
-                console.log("已加入收藏");
-            }
+            $.ajax({
+                url: '/UserFavorite/AddToFavorites',
+                type: 'POST',
+                data: { productId: @Model.ProductId },
+                success: function (response) {
+                    const icon = document.getElementById("favoriteIcon");
+                    icon.style.color = "black";
+                    // 可以加入成功訊息提示
+                },
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        alert('請先登入');
+                        window.location.href = '/Account/Login';
+                    } else {
+                        alert('操作失敗：' + xhr.responseText);
+                    }
+                }
+            });
         }
 
         let quantity = 1;

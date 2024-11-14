@@ -31,41 +31,38 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(string username, string password)
     {
-        // 根據用戶名查找用戶
         var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
 
-        // 如果用戶存在並且密碼匹配
-        if (user != null && user.PasswordHash == password) // 直接比較密碼
+        if (user != null && user.PasswordHash == password)
         {
             // 建立認證票據
             var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim("UserId", user.UserId.ToString())
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()), // 加入 ID 的 Claim
         };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             // 設置 Cookie 登入屬性
             var authProperties = new AuthenticationProperties
             {
-                IsPersistent = true, // 使 Cookie 持久化
-                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14) // 可選的到期時間
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14)
             };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
             // 更新最後一次登入時間
             user.LastLogin = DateTime.Now;
-            await _context.SaveChangesAsync(); // 確保這裡是異步保存
+            await _context.SaveChangesAsync();
 
-            // 成功登入後跳轉到首頁
             return RedirectToAction("Index", "Home");
         }
 
-        // 登入失敗，將錯誤訊息傳遞到視圖
         ViewBag.LoginFailed = "無效的帳號或密碼";
         return View();
     }
+
 
 
     [HttpPost]
@@ -87,7 +84,6 @@ public class AccountController : Controller
     {
         if (ModelState.IsValid)
         {
-            // 確保用戶名稱和電子郵件的唯一性
             var existingUser = await _context.Users
                 .SingleOrDefaultAsync(u => u.Username == username || u.Email == email);
 
@@ -97,7 +93,6 @@ public class AccountController : Controller
                 return View();
             }
 
-            // 創建新用戶，並將 DateTime 轉換為 DateOnly
             var user = new User
             {
                 Username = username,
@@ -105,13 +100,13 @@ public class AccountController : Controller
                 Phone = phone,
                 FirstName = firstName,
                 LastName = lastName,
-                DateOfBirth = DateOnly.FromDateTime(dateOfBirth), // DateTime 轉換為 DateOnly
+                DateOfBirth = DateOnly.FromDateTime(dateOfBirth),
                 Gender = gender,
                 Address = address,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 IsActive = true,
-                PasswordHash = password // 直接儲存明文密碼
+                PasswordHash = password
             };
 
             _context.Users.Add(user);
@@ -119,10 +114,10 @@ public class AccountController : Controller
 
             // 註冊成功後，自動登入
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("UserId", user.UserId.ToString())
-            };
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()), // 加入 ID 的 Claim
+        };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
@@ -146,22 +141,19 @@ public class AccountController : Controller
     [Route("auth/line/callback")]
     public async Task<IActionResult> LineCallback(string code, string returnUrl = "/")
     {
-        // 使用 code 獲取 access token 及用戶資料的邏輯
-        var accessToken = await GetAccessToken(code); // 您需要實現這個方法來從 LINE 獲取 access token
-        var userInfo = await GetUserInfo(accessToken); // 使用 access token 獲取用戶資訊
+        var accessToken = await GetAccessToken(code);
+        var userInfo = await GetUserInfo(accessToken);
 
         if (userInfo != null)
         {
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == userInfo.Email);
             if (user == null)
             {
-                // 如果用戶不存在，可以選擇創建新用戶
                 user = new User
                 {
-                    Username = userInfo.DisplayName, // 使用用戶的顯示名稱
+                    Username = userInfo.DisplayName,
                     Email = userInfo.Email,
-                    // 其他必要的屬性
-                    PasswordHash = string.Empty // 或其他適合的預設值
+                    PasswordHash = string.Empty
                 };
 
                 _context.Users.Add(user);
@@ -170,10 +162,10 @@ public class AccountController : Controller
 
             // 登入用戶
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("UserId", user.UserId.ToString())
-            };
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()), // 加入 ID 的 Claim
+        };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));

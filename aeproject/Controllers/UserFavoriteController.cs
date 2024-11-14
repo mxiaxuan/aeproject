@@ -4,6 +4,7 @@ using aeproject.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 public class UserFavoriteController : Controller
 {
@@ -31,25 +32,32 @@ public class UserFavoriteController : Controller
     [HttpPost]
     public async Task<IActionResult> AddToFavorites(int productId)
     {
-        var userId = await GetCurrentUserId();  // 獲取當前登入使用者的ID
-
-        // 檢查是否已經收藏過該商品
-        var existingFavorite = await _context.Favorites
-            .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
-
-        if (existingFavorite == null)
+        try
         {
-            var favorite = new Favorite
+            var userId = await GetCurrentUserId();
+
+            // 檢查是否已經收藏過
+            var existingFavorite = await _context.Favorites
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
+
+            if (existingFavorite == null)
             {
-                UserId = userId,  // 使用當前登入使用者的 ID
-                ProductId = productId
-            };
+                var favorite = new Favorite
+                {
+                    UserId = userId,
+                    ProductId = productId
+                };
 
-            _context.Favorites.Add(favorite);
-            await _context.SaveChangesAsync();
+                _context.Favorites.Add(favorite);
+                await _context.SaveChangesAsync();
+            }
+
+            return Json(new { success = true });
         }
-
-        return RedirectToAction("Favorites");  // 重定向到收藏頁面
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
     // 3. 從收藏中移除商品
@@ -73,15 +81,24 @@ public class UserFavoriteController : Controller
     // 取得當前登入使用者的ID
     private async Task<int> GetCurrentUserId()
     {
-        // 嘗試將 User.Identity.Name 轉換為整數，這裡假設 User.Identity.Name 是一個存儲使用者 ID 的字串
-        if (int.TryParse(User.Identity.Name, out int userId))
+        if (User?.Identity?.IsAuthenticated != true)
         {
-            return userId;  // 如果轉換成功，返回 userId
+            throw new Exception("請先登入");
         }
-        else
+
+        // 假設您在登入時將用戶ID存儲在Claim中
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
         {
-            // 如果轉換失敗，則拋出異常或根據需求處理
-            throw new Exception("無效的使用者 ID");
+            throw new Exception("無法獲取用戶ID");
         }
+
+        // 嘗試解析用戶ID
+        if (int.TryParse(userIdClaim.Value, out int userId))
+        {
+            return userId;
+        }
+
+        throw new Exception("無效的用戶ID格式");
     }
 }
