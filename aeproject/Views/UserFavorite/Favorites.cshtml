@@ -1,6 +1,7 @@
 ﻿@{
     Layout = null; // 不使用佈局
 }
+@using System.Web
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,40 +16,58 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        .favorites-list {
+        .favorites-table {
+            width: 100%;
+            margin-top: 80px;
+        }
+
+            .favorites-table img {
+                width: 90px;
+                height: 135px;
+                margin-right: 10px;
+            }
+
+            .favorites-table th, .favorites-table td {
+                padding: 15px;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+        .product-info {
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: space-between;
+            align-items: center;
         }
 
-        .product-card {
-            border: 1px solid #ddd;
-            padding: 20px;
-            width: 250px;
+        .product-name {
+            margin-left: 10px;
+            text-align: left;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #f44336;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .add-to-cart-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+            .add-to-cart-btn:hover {
+                background-color: #388E3C;
+            }
+
+        .quantity-input {
+            width: 60px;
             text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-            .product-card img {
-                width: 100%;
-                height: auto;
-                border-radius: 8px;
-            }
-
-            .product-card button {
-                background-color: #f44336;
-                color: white;
-                border: none;
-                padding: 10px;
-                cursor: pointer;
-                border-radius: 5px;
-            }
-
-                .product-card button:hover {
-                    background-color: #d32f2f;
-                }
     </style>
 </head>
 <body id="page-top">
@@ -86,21 +105,47 @@
     </nav>
 
     @model IEnumerable<Favorite>
-    <div class="favorites-list">
-        @foreach (var favorite in Model)
-        {
-            <div class="product-card">
-                <img src="~/images/@favorite.Product.ProductImage" alt="@favorite.Product.ProductName" />
-                <h3>@favorite.Product.ProductName</h3>
-                <p>NT$@String.Format("{0:N0}", favorite.Product.Price)</p>
-                <form method="post" asp-controller="UserFavorite" asp-action="RemoveFromFavorites">
-                    <input type="hidden" name="productId" value="@favorite.ProductId" />
-                    <button type="submit">移除</button>
-                </form>
-            </div>
-        }
+    <div class="container mt-5">
+        <h2>我的收藏</h2>
+        <table class="favorites-table table table-striped">
+            <thead>
+                <tr>
+                    <th>商品資料</th>
+                    <th>單價</th>
+                    <th>數量</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var favorite in Model)
+                {
+                    <tr>
+                        <td class="product-info">
+                            <img src="@favorite.Product.ProductImage"
+                                 alt="@favorite.Product.ProductName"
+                                 style="max-width: 100%; height: auto;" />                                 
+                                 <div class="product-name">
+                                <h5>@favorite.Product.ProductName</h5>
+                                <form method="post" asp-controller="UserFavorite" asp-action="RemoveFromFavorites">
+                                    <input type="hidden" name="productId" value="@favorite.ProductId" />
+                                    <button type="submit" class="remove-btn" title="移除">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td>NT$@String.Format("{0:N0}", favorite.Product.Price)</td>
+                        <td>
+                            <input type="number" class="quantity-input" name="quantity" value="1" min="1" max="@favorite.Product.StockQuantity" />
+                        </td>
+                        <td>
+                            <button class="add-to-cart-btn">加入購物車</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
-
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
@@ -120,7 +165,6 @@
                 }
             });
         });
-
     </script>
 </body>
 </html>
