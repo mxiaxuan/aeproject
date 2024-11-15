@@ -16,6 +16,13 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
+
+        .favorites-title {
+            text-align: center; /* 置中 */
+            font-size: 1.5rem; /* 調整字體大小 */
+            margin-top: 120px; /* 調整位置，避免被 navbar 擋住 */
+        }
+
         .favorites-table {
             width: 100%;
             margin-top: 80px;
@@ -46,13 +53,13 @@
         .remove-btn {
             background: none;
             border: none;
-            color: #f44336;
+            color: #000000;
             cursor: pointer;
             font-size: 18px;
         }
 
         .add-to-cart-btn {
-            background-color: #4CAF50;
+            background-color: #000000;
             color: white;
             border: none;
             padding: 8px 12px;
@@ -61,7 +68,7 @@
         }
 
             .add-to-cart-btn:hover {
-                background-color: #388E3C;
+                background-color: #0000009e;
             }
 
         .quantity-input {
@@ -106,7 +113,7 @@
 
     @model IEnumerable<Favorite>
     <div class="container mt-5">
-        <h2>我的收藏</h2>
+        <h2 class="favorites-title">我的收藏</h2>
         <table class="favorites-table table table-striped">
             <thead>
                 <tr>
