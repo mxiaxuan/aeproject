@@ -325,7 +325,10 @@
                     NT$@String.Format("{0:N0}", Model.Price)
                 </p>
                 <a href="javascript:void(0);" onclick="addToFavorites()" class="ml-2" style="float: right;">
-                    <i class="fas fa-heart" id="favoriteIcon" style="color: #FFF;"></i>
+                    @{
+                        bool isFavorite = (bool)(ViewData["IsFavorite"] ?? false);
+                    }
+                    <i class="fas fa-heart" id="favoriteIcon" style="color: @(isFavorite ? "#000" : "#FFF");"></i>
                 </a>
             </div>
 
@@ -411,9 +414,10 @@
                 type: 'POST',
                 data: { productId: @Model.ProductId },
                 success: function (response) {
-                    const icon = document.getElementById("favoriteIcon");
-                    icon.style.color = "black";
-                    // 可以加入成功訊息提示
+                    if (response.success) {
+                        const icon = document.getElementById("favoriteIcon");
+                        icon.style.color = "black";
+                    }
                 },
                 error: function (xhr) {
                     if (xhr.status === 401) {
