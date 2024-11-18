@@ -271,13 +271,38 @@
             height: 80px; /* Control image height */
             object-fit: cover; /* Ensure image covers the card space without distortion */
         }
+
+        /* 滾動容器 */
+        .recommended-products-container .d-flex {
+            overflow-x: auto; /* 使其支持水平滾動 */
+            -webkit-overflow-scrolling: touch; /* 改善在觸控設備上的滾動體驗 */
+        }
+
+            /* 自定義滾動條樣式 */
+            .recommended-products-container .d-flex::-webkit-scrollbar {
+                height: 10px; /* 控制滾動條的高度 */
+            }
+
+            .recommended-products-container .d-flex::-webkit-scrollbar-track {
+                background: #F5F5F5; /* 滾動條背景 */
+            }
+
+            .recommended-products-container .d-flex::-webkit-scrollbar-thumb {
+                background: #000; /* 滾動條顏色 */
+            }
+
+                .recommended-products-container .d-flex::-webkit-scrollbar-thumb:hover {
+                    background: #555; /* 滾動條懸停時顏色 */
+                }
+
+
     </style>
 </head>
 <body id="page-top">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
             <div class="navbar-left d-flex align-items-center">
-                <a class="navbar-brand" href="#page-top">
+                <a class="navbar-brand" asp-controller="Products" asp-action="Index">
                     <img src="~/assets/img/aespalogo.png" alt="Logo" style="max-width: 80px; height: auto;" />
                 </a>
             </div>
