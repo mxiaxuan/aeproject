@@ -294,8 +294,6 @@
                 .recommended-products-container .d-flex::-webkit-scrollbar-thumb:hover {
                     background: #555; /* 滾動條懸停時顏色 */
                 }
-
-
     </style>
 </head>
 <body id="page-top">
@@ -339,8 +337,12 @@
     <div class="product-details-container d-flex align-items-start">
         <!-- 左側圖片 -->
         <div class="product-image">
-            <img src="@Model.ProductImage" alt="@Model.ProductName" class="img-fluid" />
+            <div class="magnifier-container">
+                <img src="@Model.ProductImage" alt="@Model.ProductName" id="mainImage" />
+                <div id="magnifyGlass"></div>
+            </div>
         </div>
+
 
         <!-- 右側內容 -->
         <div class="product-info">
