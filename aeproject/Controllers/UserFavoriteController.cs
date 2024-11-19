@@ -64,18 +64,32 @@ public class UserFavoriteController : Controller
     [HttpPost]
     public async Task<IActionResult> RemoveFromFavorites(int productId)
     {
-        var userId = await GetCurrentUserId();  // 獲取當前登入使用者的ID
-
-        var favorite = await _context.Favorites
-            .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
-
-        if (favorite != null)
+        if (!User.Identity.IsAuthenticated)
         {
-            _context.Favorites.Remove(favorite);
-            await _context.SaveChangesAsync();
+            return Unauthorized();
         }
 
-        return RedirectToAction("Favorites");  // 重定向到收藏頁面
+        try
+        {
+            var userId = await GetCurrentUserId();
+
+            // 從資料庫中刪除收藏記錄
+            var favorite = await _context.Favorites  // 改用 Favorites 而不是 UserFavorites
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
+
+            if (favorite != null)
+            {
+                _context.Favorites.Remove(favorite);  // 改用 Favorites
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
     // 取得當前登入使用者的ID

@@ -436,26 +436,30 @@
         }
 
         function addToFavorites() {
-            $.ajax({
-                url: '/UserFavorite/AddToFavorites',
-                type: 'POST',
-                data: { productId: @Model.ProductId },
-                success: function (response) {
-                    if (response.success) {
-                        const icon = document.getElementById("favoriteIcon");
-                        icon.style.color = "black";
-                    }
-                },
-                error: function (xhr) {
-                    if (xhr.status === 401) {
-                        alert('請先登入');
-                        window.location.href = '/Account/Login';
-                    } else {
-                        alert('操作失敗：' + xhr.responseText);
-                    }
-                }
-            });
+    const icon = document.getElementById("favoriteIcon");
+    const currentColor = icon.style.color;
+    const action = currentColor === "black" ? "RemoveFromFavorites" : "AddToFavorites";
+
+    $.ajax({
+        url: `/UserFavorite/${action}`,
+        type: 'POST',
+        data: { productId: @Model.ProductId },
+        success: function (response) {
+            if (response.success) {
+                // 切換愛心顏色
+                icon.style.color = currentColor === "black" ? "white" : "black";
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 401) {
+                alert('請先登入');
+                window.location.href = '/Account/Login';
+            } else {
+                alert('操作失敗：' + xhr.responseText);
+            }
         }
+    });
+}
 
         let quantity = 1;
         const maxQuantity = @Model.StockQuantity;
