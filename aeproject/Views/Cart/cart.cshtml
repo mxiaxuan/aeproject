@@ -1,0 +1,57 @@
+﻿﻿﻿@{
+    Layout = null; // 不使用佈局
+}
+
+@model IEnumerable<aeproject.Models.Cart>
+
+@{
+    ViewData["Title"] = "購物車";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>商品名稱</th>
+                <th>數量</th>
+                <th>價格</th>
+                <th>小計</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Product.ProductName</td>
+                    <td>
+                        <form method="post" action="@Url.Action("UpdateQuantity", "Cart")">
+                            <input type="hidden" name="cartId" value="@item.CartId" />
+                            <input type="number" name="quantity" value="@item.Quantity" min="1" />
+                            <button type="submit" class="btn btn-primary">更新數量</button>
+                        </form>
+                    </td>
+                    <td>@item.Product.Price</td>
+                    <td>@(item.Quantity * item.Product.Price)</td>
+                    <td>
+                        <form method="post" action="@Url.Action("RemoveFromCart", "Cart")">
+                            <input type="hidden" name="cartId" value="@item.CartId" />
+                            <button type="submit" class="btn btn-danger">刪除</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div>
+        <h4>總計：@Model.Sum(c => c.Quantity * c.Product.Price)</h4>
+    </div>
+}
+else
+{
+    <p>你的購物車是空的！</p>
+}
