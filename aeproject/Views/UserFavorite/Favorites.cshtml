@@ -14,30 +14,38 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
+        body {
+            background: linear-gradient(to bottom, #f0f8ff, #000000cc);
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
 
         .favorites-title {
             text-align: center; /* 置中 */
             font-size: 1.5rem; /* 調整字體大小 */
             margin-top: 120px; /* 調整位置，避免被 navbar 擋住 */
+            color:white;
         }
 
         .favorites-table {
             width: 100%;
             margin-top: 80px;
+            background-color: #343a40ad;
         }
-
             .favorites-table img {
                 width: 90px;
-                height: 135px;
+                height: auto;
                 margin-right: 10px;
             }
 
             .favorites-table th, .favorites-table td {
                 padding: 15px;
                 text-align: center;
-                vertical-align: middle;
+                vertical-align: middle; /* 確保內容垂直居中 */
             }
 
         .product-info {
@@ -53,23 +61,29 @@
         .remove-btn {
             background: none;
             border: none;
-            color: #000000;
+            color: #FFF;
             cursor: pointer;
             font-size: 18px;
         }
 
         .add-to-cart-btn {
-            background-color: #000000;
-            color: white;
+            background-color: #FFF;
+            color: #000;
             border: none;
-            padding: 8px 12px;
+            padding: 8px 15px;
             cursor: pointer;
             border-radius: 5px;
+            white-space: nowrap; /* 防止文字換行 */
+            min-width: 120px; /* 設定最小寬度確保有足夠空間 */
         }
 
             .add-to-cart-btn:hover {
-                background-color: #0000009e;
+                background-color: #ffffffb5;
             }
+
+        .favorites-table td:last-child {
+            text-align: center;
+        }
 
         .quantity-input {
             width: 60px;
@@ -113,8 +127,7 @@
 
     @model IEnumerable<Favorite>
     <div class="container mt-5">
-        <h2 class="favorites-title">我的收藏</h2>
-        <table class="favorites-table table table-striped">
+        <table class="favorites-table table-dark table-striped">
             <thead>
                 <tr>
                     <th>商品資料</th>
@@ -131,13 +144,12 @@
                                  alt="@favorite.Product.ProductName"
                                  style="max-width: 100%; height: auto;" />                                 
                                  <div class="product-name">
-                                <h5>@favorite.Product.ProductName</h5>
-                                <form method="post" asp-controller="UserFavorite" asp-action="RemoveFromFavorites">
-                                    <input type="hidden" name="productId" value="@favorite.ProductId" />
-                                    <button type="submit" class="remove-btn" title="移除">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
+                                <h7>@favorite.Product.ProductName</h7>
+                                <div></div>
+                                <button type="button" class="remove-btn mt-2" title="移除"
+                                        onclick="removeFromFavorites(@favorite.ProductId, this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
                             </div>
                         </td>
                         <td>NT$@String.Format("{0:N0}", favorite.Product.Price)</td>
@@ -168,6 +180,29 @@
                 }
             });
         });
+
+                function removeFromFavorites(productId, button) {
+            if (confirm('確定要移除這個商品嗎？')) {
+                $.ajax({
+                    url: '/UserFavorite/RemoveFromFavorites',
+                    type: 'POST',
+                    data: { productId: productId },
+                    success: function(response) {
+                        if (response.success) {
+                            // 找到並移除整個商品行
+                            $(button).closest('tr').fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                        } else {
+                            alert('移除失敗，請稍後再試');
+                        }
+                    },
+                    error: function() {
+                        alert('發生錯誤，請稍後再試');
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>

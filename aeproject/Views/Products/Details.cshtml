@@ -268,7 +268,8 @@
         }
 
         .card-img-top {
-            height: 80px; /* Control image height */
+            height: 300px; /* Control image height */
+            width: 100%;
             object-fit: cover; /* Ensure image covers the card space without distortion */
         }
 
@@ -409,7 +410,7 @@
             {
                 <div class="card me-3" style="max-width: 250px; flex-shrink: 0;">
                     <a href="@Url.Action("Details", "Products", new { id = recommended.ProductId })">
-                        <img src="@recommended.ProductImage" class="card-img-top" alt="@recommended.ProductName" style="width: 100%; height: auto;" />
+                        <img src="@recommended.ProductImage" class="card-img-top" alt="@recommended.ProductName">
                     </a>
                     <div class="card-body">
                         <h5 class="card-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@recommended.ProductName</h5>
