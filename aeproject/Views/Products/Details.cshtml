@@ -392,7 +392,9 @@
             <p class="product-stock">庫存數量: @Model.StockQuantity</p>
 
             <div class="d-flex justify-content-between mt-4">
-                <button class="btn btn-custom btn-add-to-cart"><i class="fa-thin fa-cart-circle-plus"></i>加入購物車</button>
+                <a asp-controller="Cart" asp-action="Index" class="btn btn-custom btn-add-to-cart">
+                    <i class="fa-thin fa-cart-circle-plus"></i> 購物車
+                </a>
                 <button class="btn btn-custom btn-buy-now">購買</button>
             </div>
         </div>

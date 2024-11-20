@@ -1,9 +1,12 @@
 ﻿using aeproject.Data;
 using aeproject.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Security.Claims;
 
+[Authorize]
 public class CartController : Controller
 {
     private readonly AespadbContext _dbContext;
@@ -16,29 +19,27 @@ public class CartController : Controller
     // 顯示用戶的購物車內容
     public IActionResult Index()
     {
-        var userIdString = User.Identity.Name; // 假設這是用戶識別方式，請根據實際需求調整
-        if (int.TryParse(userIdString, out var userId)) // 嘗試將 userId 轉換為 int
+        // 改用 NameIdentifier 來獲取用戶 ID
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(userIdString, out var userId))
         {
             var cartItems = _dbContext.Carts
-                .Where(c => c.UserId == userId) // 使用整數型別進行比較
-                .Include(c => c.Product) // 加入商品資料
+                .Where(c => c.UserId == userId)
+                .Include(c => c.Product)
                 .ToList();
 
             return View("cart", cartItems);
         }
         else
         {
-            // 如果無法轉換為整數，可能是登入的用戶名稱不正確，或者未登入，這裡可以做錯誤處理
-            return RedirectToAction("Login", "Account"); // 例如，跳轉到登入頁面
+            return RedirectToAction("Login", "Account");
         }
     }
 
     [HttpPost]
     public IActionResult AddToCart(int productId, int quantity)
     {
-        var userIdString = User.Identity.Name; // 獲取當前用戶的ID（為字串類型）
-
-        // 嘗試將 userIdString 轉換為 int
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(userIdString, out var userId))
         {
             var existingItem = _dbContext.Carts
@@ -65,7 +66,7 @@ public class CartController : Controller
             }
 
             _dbContext.SaveChanges();
-            return RedirectToAction("Index"); // 添加完後跳轉回購物車頁面
+            return RedirectToAction("Index", "Cart"); // 添加完後跳轉回購物車頁面
         }
         else
         {
