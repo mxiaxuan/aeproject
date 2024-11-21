@@ -25,6 +25,8 @@ public partial class Product
 
     public virtual Album? Album { get; set; }
 
+    public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();

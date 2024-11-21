@@ -19,6 +19,8 @@ public partial class AespadbContext : DbContext
 
     public virtual DbSet<Cart> Carts { get; set; }
 
+    public virtual DbSet<CartItem> CartItems { get; set; }
+
     public virtual DbSet<Favorite> Favorites { get; set; }
 
     public virtual DbSet<Order> Orders { get; set; }
@@ -33,15 +35,11 @@ public partial class AespadbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=aespadb;TrustServerCertificate=True;Integrated Security=true");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Album>(entity =>
         {
-            entity.HasKey(e => e.AlbumId).HasName("PK__Albums__B0E1DDB2D46F2F21");
+            entity.HasKey(e => e.AlbumId).HasName("PK__Albums__B0E1DDB2F931064A");
 
             entity.Property(e => e.AlbumId).HasColumnName("album_id");
             entity.Property(e => e.Agency)
@@ -69,7 +67,7 @@ public partial class AespadbContext : DbContext
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__2EF52A276B5F9FFA");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__2EF52A277ABC9B4D");
 
             entity.ToTable("Cart");
 
@@ -99,9 +97,41 @@ public partial class AespadbContext : DbContext
                 .HasConstraintName("FK__Cart__user_id__656C112C");
         });
 
+        modelBuilder.Entity<CartItem>(entity =>
+        {
+            entity.HasKey(e => e.CartItemId).HasName("PK__Cart_Ite__5D9A6C6ED859B331");
+
+            entity.ToTable("Cart_Items");
+
+            entity.Property(e => e.CartItemId).HasColumnName("cart_item_id");
+            entity.Property(e => e.AddedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("added_at");
+            entity.Property(e => e.CartId).HasColumnName("cart_id");
+            entity.Property(e => e.ProductId).HasColumnName("product_id");
+            entity.Property(e => e.Quantity)
+                .HasDefaultValue(1)
+                .HasColumnName("quantity");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
+
+            entity.HasOne(d => d.Cart).WithMany(p => p.CartItems)
+                .HasForeignKey(d => d.CartId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Cart_Item__cart___6754599E");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.CartItems)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Items_Product");
+        });
+
         modelBuilder.Entity<Favorite>(entity =>
         {
-            entity.HasKey(e => e.FavoriteId).HasName("PK__Favorite__46ACF4CB3DB38D5A");
+            entity.HasKey(e => e.FavoriteId).HasName("PK__Favorite__46ACF4CB7587A8D8");
 
             entity.Property(e => e.FavoriteId).HasColumnName("favorite_id");
             entity.Property(e => e.CreatedAt)
@@ -124,7 +154,7 @@ public partial class AespadbContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Orders__46596229F42CB7A9");
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__465962296B3BBB5C");
 
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.CreatedAt)
@@ -160,7 +190,7 @@ public partial class AespadbContext : DbContext
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__Order_It__3764B6BC994F3534");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__Order_It__3764B6BCAEE72160");
 
             entity.ToTable("Order_Items");
 
@@ -196,7 +226,7 @@ public partial class AespadbContext : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__47027DF5EF3BAA2C");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__47027DF5AB2B0B07");
 
             entity.Property(e => e.ProductId).HasColumnName("product_id");
             entity.Property(e => e.AlbumId).HasColumnName("album_id");
@@ -227,7 +257,7 @@ public partial class AespadbContext : DbContext
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.ReviewId).HasName("PK__Reviews__60883D90149C4111");
+            entity.HasKey(e => e.ReviewId).HasName("PK__Reviews__60883D90AA368FFF");
 
             entity.Property(e => e.ReviewId).HasColumnName("review_id");
             entity.Property(e => e.CreatedAt)
@@ -258,7 +288,7 @@ public partial class AespadbContext : DbContext
 
         modelBuilder.Entity<Song>(entity =>
         {
-            entity.HasKey(e => e.SongId).HasName("PK__Songs__A535AE1CD3BDD964");
+            entity.HasKey(e => e.SongId).HasName("PK__Songs__A535AE1CA44870A8");
 
             entity.Property(e => e.SongId).HasColumnName("song_id");
             entity.Property(e => e.AlbumId).HasColumnName("album_id");
@@ -289,11 +319,11 @@ public partial class AespadbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__B9BE370F35C6FEB7");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__B9BE370FE3F21B41");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__AB6E6164078CF45D").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__AB6E616481719C60").IsUnique();
 
-            entity.HasIndex(e => e.Username, "UQ__Users__F3DBC5729B4D3495").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Users__F3DBC57268C41033").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.Address)
