@@ -40,7 +40,6 @@
 
         .navbar {
             background-color: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .navbar-brand img {
@@ -84,17 +83,24 @@
             border: 1px solid #FFF;
         }
 
+        .quantity-input {
+            width: 80px;
+            text-align: center;
+            margin: 0 auto;
+            display: block;
+        }
+
         .btn-continue {
             width: 150px;
             height: 40px;
-            text-align:center;
-            border-radius:0px;
+            text-align: center;
+            border-radius: 0px;
             border: 1px solid #000;
         }
 
-        .btn-continue:hover {
-            border: 1px solid #000;
-        }
+            .btn-continue:hover {
+                border: 1px solid #000;
+            }
     </style>
 </head>
 <body>
@@ -163,8 +169,14 @@
                             </td>
                             <td>NT$ @string.Format("{0:N0}", item.Product.Price)</td>
                             <td>
-                                <input type="number" class="form-control quantity-input" data-cart-id="@item.CartId"
-                                       name="quantity" value="@item.Quantity" min="1" max="@item.Product.StockQuantity" />
+                                <input type="number"
+                                       class="form-control quantity-input"
+                                       data-cart-id="@item.CartId"
+                                       name="quantity"
+                                       value="@item.Quantity"
+                                       min="1"
+                                       max="@item.Product.StockQuantity"
+                                       oninput="validateQuantity(this, @item.Product.StockQuantity)" />
                             </td>
                             <td class="subtotal">NT$ @string.Format("{0:N0}", item.Quantity * item.Product.Price)</td>
                             <td>
@@ -299,6 +311,67 @@
                 });
             });
         });
+
+        function validateQuantity(input, maxStock) {
+                const value = parseInt(input.value);
+                const cartId = input.dataset.cartId;
+                const row = $(input).closest('tr');
+
+                // 如果輸入為空或不是數字，不進行處理
+                if (input.value === '' || isNaN(value)) {
+                    return;
+                }
+
+                // 發送 AJAX 請求到後端
+                $.ajax({
+                    url: '@Url.Action("UpdateQuantity", "Cart")',
+                    type: 'POST',
+                    data: {
+                        cartId: cartId,
+                        quantity: value
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // 更新小計金額
+                            row.find('.subtotal').text(response.formattedSubtotal);
+
+                            // 觸發選取商品的小計計算
+                            $(".select-item").trigger("change");
+                        } else {
+                            // 顯示錯誤訊息
+                            alert(response.message);
+
+                            // 如果是庫存不足，將數量重置為最大庫存量
+                            if (response.stockQuantity) {
+                                input.value = response.stockQuantity;
+                                // 重新觸發驗證以更新小計
+                                validateQuantity(input, response.stockQuantity);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('更新數量失敗，請稍後再試');
+                        // 發生錯誤時重置為原始值
+                        input.value = input.defaultValue;
+                    }
+                });
+            }
+
+            // 防止直接輸入負數或非數字
+            $('.quantity-input').on('keypress', function(e) {
+                // 只允許輸入數字
+                if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                    return false;
+                }
+            });
+
+            // 當輸入框失去焦點時，確保至少有一個數量
+            $('.quantity-input').on('blur', function() {
+                if (this.value === '' || parseInt(this.value) < 1) {
+                    this.value = 1;
+                    validateQuantity(this, parseInt(this.max));
+                }
+            });
     </script>
 </body>
 </html>

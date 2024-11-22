@@ -392,9 +392,13 @@
             <p class="product-stock">庫存數量: @Model.StockQuantity</p>
 
             <div class="d-flex justify-content-between mt-4">
-                <a asp-controller="Cart" asp-action="Index" class="btn btn-custom btn-add-to-cart">
-                    <i class="fa-thin fa-cart-circle-plus"></i> 購物車
-                </a>
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" style="width: 48%;">
+                    <input type="hidden" name="productId" value="@Model.ProductId" />
+                    <input type="hidden" name="quantity" id="cartQuantity" value="1" />
+                    <button type="submit" class="btn btn-custom btn-add-to-cart w-100">
+                        <i class="fa-thin fa-cart-circle-plus"></i> 加入購物車
+                    </button>
+                </form>
                 <button class="btn btn-custom btn-buy-now">購買</button>
             </div>
         </div>
@@ -433,36 +437,37 @@
             const icon = button.querySelector('.accordion-icon');
             icon.classList.toggle('rotate');
         }
+
         function toggleIcon(button) {
             const icon = button.querySelector('.accordion-icon');
             icon.classList.toggle('rotate');
         }
 
         function addToFavorites() {
-    const icon = document.getElementById("favoriteIcon");
-    const currentColor = icon.style.color;
-    const action = currentColor === "black" ? "RemoveFromFavorites" : "AddToFavorites";
+        const icon = document.getElementById("favoriteIcon");
+        const currentColor = icon.style.color;
+        const action = currentColor === "black" ? "RemoveFromFavorites" : "AddToFavorites";
 
-    $.ajax({
-        url: `/UserFavorite/${action}`,
-        type: 'POST',
-        data: { productId: @Model.ProductId },
-        success: function (response) {
-            if (response.success) {
-                // 切換愛心顏色
-                icon.style.color = currentColor === "black" ? "white" : "black";
+        $.ajax({
+            url: `/UserFavorite/${action}`,
+            type: 'POST',
+            data: { productId: @Model.ProductId },
+            success: function (response) {
+                if (response.success) {
+                    // 切換愛心顏色
+                    icon.style.color = currentColor === "black" ? "white" : "black";
+                }
+            },
+            error: function (xhr) {
+                if (xhr.status === 401) {
+                    alert('請先登入');
+                    window.location.href = '/Account/Login';
+                } else {
+                    alert('操作失敗：' + xhr.responseText);
+                }
             }
-        },
-        error: function (xhr) {
-            if (xhr.status === 401) {
-                alert('請先登入');
-                window.location.href = '/Account/Login';
-            } else {
-                alert('操作失敗：' + xhr.responseText);
-            }
-        }
-    });
-}
+        });
+    }
 
         let quantity = 1;
         const maxQuantity = @Model.StockQuantity;
@@ -483,6 +488,7 @@
 
         function updateQuantityDisplay() {
             document.getElementById("quantityDisplay").value = quantity;
+            document.getElementById("cartQuantity").value = quantity; // 新增這行
         }
 
         function manualQuantityChange() {

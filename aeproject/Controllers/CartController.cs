@@ -3,6 +3,7 @@ using aeproject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Security.Claims;
 using System;
@@ -11,28 +12,30 @@ using System;
 public class CartController : Controller
 {
     private readonly AespadbContext _dbContext;
+    private readonly ILogger<CartController> _logger;
 
-    public CartController(AespadbContext dbContext)
+    public CartController(AespadbContext dbContext, ILogger<CartController> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     // 顯示用戶的購物車內容
     public IActionResult Index()
     {
-        // 改用 NameIdentifier 來獲取用戶 ID
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(userIdString, out var userId))
         {
             var cartItems = _dbContext.Carts
                 .Where(c => c.UserId == userId)
-                .Include(c => c.Product) // 確保一併載入 Product 資料
+                .Include(c => c.Product)
                 .ToList();
 
             return View("cart", cartItems);
         }
         else
         {
+            _logger.LogWarning("User ID could not be parsed when accessing cart index");
             return RedirectToAction("Login", "Account");
         }
     }
@@ -44,80 +47,116 @@ public class CartController : Controller
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(userIdString, out var userId))
         {
-            // 查找該用戶是否已經有這個商品
-            var existingItem = _dbContext.Carts
-                .FirstOrDefault(c => c.UserId == userId && c.ProductId == productId);
+            try
+            {
+                var existingItem = _dbContext.Carts
+                    .FirstOrDefault(c => c.UserId == userId && c.ProductId == productId);
 
-            if (existingItem != null)
-            {
-                // 如果商品已經在購物車中，增加數量
-                existingItem.Quantity += quantity;
-                existingItem.UpdatedAt = DateTime.Now; // 更新時間
-            }
-            else
-            {
-                // 如果商品不在購物車中，創建一個新的項目
-                var newItem = new Cart
+                if (existingItem != null)
                 {
-                    UserId = userId,
-                    ProductId = productId,
-                    Quantity = quantity,
-                    AddedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
-                _dbContext.Carts.Add(newItem);
-            }
+                    existingItem.Quantity += quantity;
+                    existingItem.UpdatedAt = DateTime.Now;
+                }
+                else
+                {
+                    var newItem = new Cart
+                    {
+                        UserId = userId,
+                        ProductId = productId,
+                        Quantity = quantity,
+                        AddedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+                    _dbContext.Carts.Add(newItem);
+                }
 
-            _dbContext.SaveChanges();
-            return RedirectToAction("Index", "Cart"); // 添加完後跳轉回購物車頁面
+                _dbContext.SaveChanges();
+                _logger.LogInformation($"Successfully added/updated product {productId} to cart for user {userId}");
+                return RedirectToAction("Index", "Cart");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error adding product {productId} to cart for user {userId}");
+                return RedirectToAction("Index", "Cart");
+            }
         }
         else
         {
-            return RedirectToAction("Login", "Account"); // 跳轉到登入頁面
+            _logger.LogWarning("User ID could not be parsed when adding to cart");
+            return RedirectToAction("Login", "Account");
         }
     }
 
-    // 更新購物車中商品數量
     [HttpPost]
     public IActionResult UpdateQuantity(int cartId, int quantity)
     {
-        var cartItem = _dbContext.Carts.Find(cartId);
-        if (cartItem != null)
+        try
         {
-            // 檢查數量是否合法
-            if (quantity > 0 && quantity <= cartItem.Product.StockQuantity)
-            {
-                cartItem.Quantity = quantity;
-                cartItem.UpdatedAt = DateTime.Now;
-                _dbContext.SaveChanges();
-            }
-            else
-            {
-                // 數量超過庫存，或者小於等於0，這裡可以返回錯誤訊息或提示
-                TempData["Error"] = "數量超過庫存或無效！";
-            }
-        }
+            var cartItem = _dbContext.Carts
+                .Include(c => c.Product)
+                .FirstOrDefault(c => c.CartId == cartId);
 
-        return RedirectToAction("Index");
+            if (cartItem == null)
+            {
+                _logger.LogWarning($"Cart item {cartId} not found during quantity update");
+                return Json(new { success = false, message = "購物車項目不存在" });
+            }
+
+            if (quantity <= 0)
+            {
+                _logger.LogWarning($"Invalid quantity {quantity} requested for cart item {cartId}");
+                return Json(new { success = false, message = "商品數量必須大於0" });
+            }
+
+            if (quantity > cartItem.Product.StockQuantity)
+            {
+                _logger.LogWarning($"Requested quantity {quantity} exceeds stock {cartItem.Product.StockQuantity} for cart item {cartId}");
+                return Json(new
+                {
+                    success = false,
+                    message = $"庫存不足，目前庫存為 {cartItem.Product.StockQuantity} 件",
+                    stockQuantity = cartItem.Product.StockQuantity
+                });
+            }
+
+            cartItem.Quantity = quantity;
+            cartItem.UpdatedAt = DateTime.Now;
+            _dbContext.SaveChanges();
+
+            decimal subtotal = cartItem.Quantity * cartItem.Product.Price;
+            _logger.LogInformation($"Successfully updated quantity for cart item {cartId}");
+
+            return Json(new
+            {
+                success = true,
+                message = "數量更新成功",
+                subtotal = subtotal,
+                formattedSubtotal = $"NT$ {subtotal:N0}"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error updating quantity for cart item {cartId}");
+            return Json(new { success = false, message = "更新數量時發生錯誤，請稍後再試" });
+        }
     }
+
     public IActionResult RemoveFromCart(int cartId)
     {
         using (var transaction = _dbContext.Database.BeginTransaction())
         {
             try
             {
-                // 先刪除關聯的 CartItems
                 var relatedItems = _dbContext.CartItems
                     .Where(ci => ci.CartId == cartId)
                     .ToList();
 
                 if (relatedItems.Any())
                 {
-                    _dbContext.CartItems.RemoveRange(relatedItems);  // 確保這裡使用 CartItems，而不是 Cart_Item
+                    _dbContext.CartItems.RemoveRange(relatedItems);
                     _dbContext.SaveChanges();
                 }
 
-                // 然後刪除購物車項目
                 var cartItem = _dbContext.Carts
                     .FirstOrDefault(c => c.CartId == cartId && c.UserId == GetUserId());
 
@@ -127,17 +166,20 @@ public class CartController : Controller
                     _dbContext.SaveChanges();
 
                     transaction.Commit();
+                    _logger.LogInformation($"Successfully removed cart item {cartId}");
                     return Json(new { success = true, message = "商品已成功從購物車移除" });
                 }
                 else
                 {
                     transaction.Rollback();
+                    _logger.LogWarning($"Cart item {cartId} not found during removal");
                     return Json(new { success = false, message = "找不到該商品" });
                 }
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
+                _logger.LogError(ex, $"Error removing cart item {cartId}");
                 return Json(new
                 {
                     success = false,
@@ -147,13 +189,9 @@ public class CartController : Controller
         }
     }
 
-
-    // 獲取當前用戶的 UserId
     private int GetUserId()
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);  // 根據 NameIdentifier 獲取用戶的 ID
-        return int.TryParse(userIdString, out var userId) ? userId : 0;  // 解析 ID 並返回
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdString, out var userId) ? userId : 0;
     }
-
-
 }
