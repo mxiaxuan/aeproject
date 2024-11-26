@@ -13021,6 +13021,7 @@ section#contact {
     }
 }
 
+/* Home 按鈕樣式 */
 .home-button {
     z-index: 9999; /* 確保在其他元素上方 */
     position: fixed;
@@ -13045,12 +13046,26 @@ section#contact {
         pointer-events: auto;
     }
 
-
     .home-button:hover {
         background-color: #000912;
     }
 
-
 a:hover {
     color: #ffffff;
+}
+
+.dropdown-item {
+    display: flex; /* 使用彈性盒模型 */
+    align-items: center; /* 垂直居中對齊 */
+    gap: 10px; /* 圖示與文字間距 */
+}
+
+    .dropdown-item i {
+        font-size: 16px; /* 確保圖示大小一致 */
+        width: 20px; /* 固定寬度，保證對齊 */
+        text-align: center; /* 圖示居中對齊 */
+    }
+
+.dropdown-menu {
+    padding: 0.5rem 1rem; /* 適當調整內距 */
 }

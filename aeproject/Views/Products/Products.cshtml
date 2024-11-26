@@ -112,6 +112,22 @@
             padding: 0;
         }
 
+        .dropdown-item {
+            display: flex; /* 使用彈性盒模型 */
+            align-items: center; /* 垂直居中對齊 */
+            gap: 10px; /* 圖示與文字間距 */
+        }
+
+            .dropdown-item i {
+                font-size: 16px; /* 確保圖示大小一致 */
+                width: 20px; /* 固定寬度，保證對齊 */
+                text-align: center; /* 圖示居中對齊 */
+            }
+
+        .dropdown-menu {
+            padding: 0.5rem 1rem; /* 適當調整內距 */
+        }
+
         .carousel,
         .carousel-inner,
         .carousel-item {
@@ -203,6 +219,30 @@
             transform: scale(1.05);
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
         }
+
+        .product-card .card-cart-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s, transform 0.2s;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+            .product-card .card-cart-icon:hover {
+                transform: scale(1.1);
+            }
+
+        .product-card .card {
+            position: relative; /* 確保絕對定位的購物車圖示正確定位 */
+        }
     </style>
 </head>
 <body id="page-top">
@@ -248,11 +288,20 @@
                                 <i class="fas fa-user"></i> @User.Identity.Name
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" asp-controller="UserFavorite" asp-action="Favorites">
+                                    <i class="fa-regular fa-heart"></i> 我的收藏
+                                </a>
+                                <a class="dropdown-item" asp-controller="Cart" asp-action="Index">
+                                    <i class="fa-solid fa-cart-shopping"></i> 購物車
+                                </a>
                                 <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                                    <button type="submit" class="dropdown-item">登出</button>
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fa-solid fa-right-from-bracket"></i> 登出
+                                    </button>
                                 </form>
                             </div>
                         </li>
+
                     }
                     else
                     {
@@ -308,7 +357,10 @@
                             <img src="@Url.Content(product.ProductImage)" class="card-img-top ps-3" alt="@product.ProductName">
                             <div class="card-body">
                                 <h5 class="card-title">@Html.DisplayFor(modelItem => product.ProductName)</h5>
-                                <p class="card-text">NT $@product.Price.ToString("N0")</p>
+                                <p class="card-text mt-1">NT $@product.Price.ToString("N0")</p>
+                            </div>
+                            <div class="card-cart-icon" data-product-id="@product.ProductId">
+                                <i class="fa-solid fa-cart-plus mt-3"></i>
                             </div>
                         </a>
                     </div>
@@ -363,6 +415,49 @@
                         } else {
                             $(this).hide();
                         }
+                    });
+                });
+            });
+
+            // 添加購物車功能
+            const cartIcons = document.querySelectorAll('.card-cart-icon');
+
+            cartIcons.forEach(icon => {
+                icon.addEventListener('click', function (event) {
+                    event.preventDefault(); // 阻止連結跳轉
+                    event.stopPropagation(); // 阻止事件冒泡
+
+                    const productId = this.dataset.productId;
+
+                    // 如果未登入，跳轉到登入頁面
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <text>
+                                window.location.href = '@Url.Action("Login", "Account")';
+                                return;
+            </text>
+        }
+
+                    // 發送 AJAX 請求加入購物車
+                    fetch('@Url.Action("AddToCart", "Cart")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: `productId=${productId}&quantity=1`
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // 顯示加入購物車成功的提示
+                            alert('商品已成功加入購物車！');
+                        } else {
+                            alert('加入購物車失敗，請稍後再試');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('加入購物車發生錯誤');
                     });
                 });
             });

@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body id="page-top">
+    <!-- Home 按鈕 -->
     <a href="/" class="home-button" id="backToHome">
         <i class="fa-sharp fa-light fa-house"></i>
     </a>
@@ -34,8 +35,8 @@
                 <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
                     <li class="nav-item"><a class="nav-link" href="#about_aespa">關於</a></li>
                     <li class="nav-item"><a class="nav-link" href="#albumview" id="album-link">專輯一覽</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Products" asp-action="Index">商品購買</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Cart" asp-action="Index">購物車</a></li>
 
                     <!-- 登入狀態判斷 -->
                     <!-- 登入狀態判斷，顯示下拉選單和使用者圖示 -->
@@ -46,8 +47,9 @@
                                 <i class="fas fa-user"></i> @User.Identity.Name
                             </a>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" asp-controller="UserFavorite" asp-action="Favorites"><i class="fa-regular fa-heart"></i>  我的收藏</a>
                                 <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                                    <button type="submit" class="dropdown-item">登出</button>
+                                    <button type="submit" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i>  登出</button>
                                 </form>
                             </div>
                         </li>
