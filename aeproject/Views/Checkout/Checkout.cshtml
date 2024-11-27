@@ -1,0 +1,19 @@
+﻿<h1>結帳</h1>
+<form asp-action="SubmitOrder" method="post">
+    <div>
+        <h3>商品清單</h3>
+        <ul>
+            @foreach (var item in ViewBag.CartItems as List<CartItem>)
+            {
+                <li>@item.Product.ProductName - @item.Quantity x @item.Product.Price = @item.Total</li>
+            }
+        </ul>
+        <p>總金額: @ViewBag.TotalAmount</p>
+    </div>
+    <div>
+        <h3>配送資訊</h3>
+        <label for="shippingAddress">收貨地址</label>
+        <input type="text" id="shippingAddress" name="shippingAddress" required />
+    </div>
+    <button type="submit">提交訂單</button>
+</form>
