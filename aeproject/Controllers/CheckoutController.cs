@@ -15,33 +15,63 @@ namespace aeproject.Controllers
         }
 
         // 顯示結帳頁面
+        [HttpPost]
+        public IActionResult Index(int productId, int quantity)
+        {
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == productId);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var cartItem = new CartItem
+            {
+                ProductId = productId,
+                Product = product,
+                Quantity = quantity
+            };
+
+            var cartItems = new List<CartItem> { cartItem };
+
+            ViewBag.CartItems = cartItems;
+            ViewBag.TotalAmount = cartItem.Total;
+
+            return View("Checkout");
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
-            var cartItems = GetCartItems(); // 從購物車中提取內容
-            var totalAmount = cartItems.Sum(item => item.Total); // 使用 Total 屬性計算總金額
-
-            ViewBag.CartItems = cartItems;   // 將購物車商品存入 ViewBag
-            ViewBag.TotalAmount = totalAmount; // 總金額存入 ViewBag
-
-            return View("checkout");  // 修改此處為 'checkout' 視圖名稱
+            // 這是為了處理直接訪問 /Checkout/Index 的情況
+            return View("Checkout");
         }
 
+
         [HttpPost]
-        public IActionResult SubmitOrder(string shippingAddress)
+        public IActionResult SubmitOrder(string shippingAddress, string contactPhone)
         {
-            var cartItems = GetCartItems(); // 從購物車中提取內容
-            var totalAmount = cartItems.Sum(item => item.Total); // 使用 Total 屬性計算總金額
+            var cartItems = GetCartItems();
+
+            if (!cartItems.Any())
+            {
+                ModelState.AddModelError("", "購物車是空的");
+                return View("Index");
+            }
 
             if (string.IsNullOrWhiteSpace(shippingAddress))
             {
                 ModelState.AddModelError("ShippingAddress", "配送地址為必填");
-                ViewBag.CartItems = cartItems;
-                ViewBag.TotalAmount = totalAmount;
-                return View("checkout");  // 返回 'checkout' 視圖
+                return View("Index");
             }
 
-            // 創建訂單
+            if (string.IsNullOrWhiteSpace(contactPhone) || !System.Text.RegularExpressions.Regex.IsMatch(contactPhone, @"^09\d{8}$"))
+            {
+                ModelState.AddModelError("ContactPhone", "請輸入正確的手機號碼");
+                return View("Index");
+            }
+
+            var totalAmount = cartItems.Sum(item => item.Total);
+
             var order = new Order
             {
                 UserId = GetCurrentUserId(),
@@ -49,36 +79,57 @@ namespace aeproject.Controllers
                 TotalAmount = totalAmount,
                 OrderStatus = "Pending",
                 ShippingAddress = shippingAddress,
+                ContactPhone = contactPhone,  // 新增聯繫電話
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
 
-            _context.Orders.Add(order);
-            _context.SaveChanges();
-
-            // 添加訂單項目
-            foreach (var item in cartItems)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                var orderItem = new OrderItem
+                try
                 {
-                    OrderId = order.OrderId,
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    Price = item.Product.Price, // 確保產品的單價可用
-                    TotalPrice = item.Total,    // 使用 Total 屬性
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
+                    _context.Orders.Add(order);
+                    _context.SaveChanges();
 
-                _context.OrderItems.Add(orderItem);
+                    foreach (var item in cartItems)
+                    {
+                        var orderItem = new OrderItem
+                        {
+                            OrderId = order.OrderId,
+                            ProductId = item.ProductId,
+                            Quantity = item.Quantity,
+                            Price = item.Product.Price,
+                            TotalPrice = item.Total,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
+                        };
+                        _context.OrderItems.Add(orderItem);
+
+                        // 更新產品庫存
+                        var product = _context.Products.Find(item.ProductId);
+                        if (product != null && product.StockQuantity >= item.Quantity)
+                        {
+                            product.StockQuantity -= item.Quantity;
+                        }
+                        else
+                        {
+                            throw new Exception($"產品 {item.Product.ProductName} 庫存不足");
+                        }
+                    }
+
+                    _context.SaveChanges();
+                    transaction.Commit();
+
+                    ClearCart();
+                    return RedirectToAction("Confirmation", new { orderId = order.OrderId });
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    ModelState.AddModelError("", "訂單處理失敗：" + ex.Message);
+                    return View("Index");
+                }
             }
-
-            _context.SaveChanges();
-
-            // 清空購物車
-            ClearCart();
-
-            return RedirectToAction("Confirmation", new { orderId = order.OrderId });
         }
 
         // 訂單確認頁
@@ -98,8 +149,28 @@ namespace aeproject.Controllers
         }
 
         // 模擬方法
-        private int GetCurrentUserId() => 1; // 模擬用戶ID，應替換為實際用戶ID
-        private List<CartItem> GetCartItems() => new List<CartItem>(); // 模擬提取購物車內容
-        private void ClearCart() { } // 模擬清空購物車的方法
+        private int GetCurrentUserId()
+        {
+            // 從 ClaimsPrincipal 獲取當前登入用戶的 ID
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
+        private List<CartItem> GetCartItems()
+        {
+            // Assuming you want to get cart items for the current user's cart
+            return _context.CartItems
+                .Include(c => c.Product)
+                .Where(c => c.Cart.UserId == GetCurrentUserId())
+                .ToList();
+        }
+
+        private void ClearCart()
+        {
+            // 刪除當前用戶的所有購物車項目
+            var cartItems = _context.CartItems
+                .Where(c => c.Cart.UserId == GetCurrentUserId());
+
+            _context.CartItems.RemoveRange(cartItems);
+            _context.SaveChanges();
+        }
     }
 }

@@ -22,7 +22,7 @@ public partial class CartItem
     public virtual Product Product { get; set; } = null!; // Navigation property to Product
 
     // 總價（計算屬性）
-    public decimal Total => Quantity * Product.Price;
+    public decimal Total => Product.Price * Quantity;
 
 }
 
