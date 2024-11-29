@@ -148,7 +148,7 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th><input type="checkbox" id="selectAll" /></th>
+                        <th><input type="checkbox" id="selectAll" checked/></th>
                         <th>商品資料</th>
                         <th>單價</th>
                         <th>數量</th>
@@ -160,7 +160,7 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td><input type="checkbox" class="select-item" data-cart-id="@item.CartId" /></td>
+                            <td><input type="checkbox" class="select-item" data-cart-id="@item.CartId" checked /></td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <img src="@item.Product.ProductImage" alt="@item.Product.ProductName" style="max-width: 80px; margin-right: 10px;" />

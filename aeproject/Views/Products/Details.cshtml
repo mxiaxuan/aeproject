@@ -423,7 +423,7 @@
                 </form>
                 <form asp-controller="Checkout" asp-action="Index" method="post" style="width: 48%;">
                     <input type="hidden" name="productId" value="@Model.ProductId" />
-                    <input type="hidden" name="quantity" value="@("1")" />
+                    <input type="hidden" name="quantity" value="@("1")" id="buyQuantity" />
                     <button type="submit" class="btn btn-custom btn-buy-now w-100">購買</button>
                 </form>
             </div>
@@ -514,7 +514,8 @@
 
         function updateQuantityDisplay() {
             document.getElementById("quantityDisplay").value = quantity;
-            document.getElementById("cartQuantity").value = quantity; // 新增這行
+            document.getElementById("cartQuantity").value = quantity;
+            document.getElementById("buyQuantity").value = quantity;
         }
 
         function manualQuantityChange() {
