@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace aeproject.Controllers
 {
@@ -14,27 +15,45 @@ namespace aeproject.Controllers
             _context = context;
         }
 
-        // 顯示結帳頁面
+        // 處理從購物車選中的商品結帳
         [HttpPost]
-        public IActionResult Index(int productId, int quantity)
+        public IActionResult Index(string selectedItems)
         {
-            var product = _context.Products.FirstOrDefault(p => p.ProductId == productId);
-            if (product == null)
+            if (string.IsNullOrEmpty(selectedItems))
             {
-                return NotFound();
+                return RedirectToAction("Index", "Cart");
             }
 
-            var cartItem = new CartItem
+            List<int> selectedItemIds;
+            try
             {
-                ProductId = productId,
-                Product = product,
-                Quantity = quantity
-            };
+                // 反序列化選中的商品 ID
+                selectedItemIds = JsonSerializer.Deserialize<List<int>>(selectedItems);
+            }
+            catch
+            {
+                return RedirectToAction("Index", "Cart");
+            }
 
-            var cartItems = new List<CartItem> { cartItem };
+            // 取得選中的購物車項目
+            var cartItems = _context.Carts
+                .Include(c => c.Product)
+                .Where(c => selectedItemIds.Contains(c.CartId) && c.UserId == GetCurrentUserId())
+                .Select(c => new CartItem
+                {
+                    ProductId = c.ProductId,
+                    Product = c.Product,
+                    Quantity = c.Quantity
+                })
+                .ToList();
+
+            if (!cartItems.Any())
+            {
+                return RedirectToAction("Index", "Cart");
+            }
 
             ViewBag.CartItems = cartItems;
-            ViewBag.TotalAmount = cartItem.Total;
+            ViewBag.TotalAmount = cartItems.Sum(item => item.Total);
 
             return View("Checkout");
         }

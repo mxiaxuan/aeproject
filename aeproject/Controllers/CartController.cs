@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Security.Claims;
 using System;
+using System.Text.Json;
 
 [Authorize]
 public class CartController : Controller
@@ -189,6 +190,75 @@ public class CartController : Controller
         }
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Checkout(string selectedItems)
+    {
+        if (string.IsNullOrEmpty(selectedItems))
+        {
+            return BadRequest("未選擇任何商品。");
+        }
+
+        List<int> selectedItemIds;
+
+        try
+        {
+            // 反序列化 selectedItems 字串為 List<int>
+            selectedItemIds = JsonSerializer.Deserialize<List<int>>(selectedItems);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "無法反序列化 selectedItems。");
+            return BadRequest("選擇的商品格式無效，請重新選擇。");
+        }
+
+        if (selectedItemIds == null || !selectedItemIds.Any())
+        {
+            return BadRequest("無效的商品選擇資料。");
+        }
+
+        // 取得選擇的商品及其相關的購物車項目
+        var selectedProducts = _dbContext.CartItems
+            .Where(ci => selectedItemIds.Contains(ci.CartId) && ci.Cart.UserId == GetUserId())
+            .Include(ci => ci.Product)
+            .ToList();
+
+        if (!selectedProducts.Any())
+        {
+            return BadRequest("無法找到選擇的商品，請確認您選擇的商品是否有效。");
+        }
+
+        // 建立新的訂單
+        var newOrder = new Order
+        {
+            UserId = GetUserId(),
+            OrderDate = DateTime.Now
+        };
+
+        // 儲存訂單並獲取 OrderId
+        _dbContext.Orders.Add(newOrder);
+        _dbContext.SaveChanges();
+
+        // 根據選擇的商品生成 OrderItem，並將其儲存到資料庫
+        var orderItems = selectedProducts.Select(p => new OrderItem
+        {
+            OrderId = newOrder.OrderId,  // 設置 OrderId，這樣 OrderItem 就會關聯到訂單
+            ProductId = p.ProductId,
+            Quantity = p.Quantity,
+            Price = p.Product.Price,
+            TotalPrice = p.Quantity * p.Product.Price
+        }).ToList();
+
+        // 儲存 OrderItem
+        _dbContext.OrderItems.AddRange(orderItems);
+        _dbContext.SaveChanges();
+
+        // 重定向到確認訂單頁面
+        var createdOrderId = newOrder.OrderId;
+        return RedirectToAction("ConfirmOrder", new { orderId = createdOrderId });
+    }
+
+    // 獲取當前用戶的 ID
     private int GetUserId()
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
