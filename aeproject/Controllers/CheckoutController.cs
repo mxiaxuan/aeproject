@@ -15,37 +15,61 @@ namespace aeproject.Controllers
             _context = context;
         }
 
-        // 處理從購物車選中的商品結帳
+        // 處理從購物車選中的商品結帳 和 直接購買
         [HttpPost]
-        public IActionResult Index(string selectedItems)
+        public IActionResult Index(string selectedItems, int? productId = null, int? quantity = null)
         {
-            if (string.IsNullOrEmpty(selectedItems))
-            {
-                return RedirectToAction("Index", "Cart");
-            }
+            List<CartItem> cartItems;
 
-            List<int> selectedItemIds;
-            try
+            // 如果是直接購買（從商品詳情頁）
+            if (productId.HasValue && quantity.HasValue)
             {
-                // 反序列化選中的商品 ID
-                selectedItemIds = JsonSerializer.Deserialize<List<int>>(selectedItems);
-            }
-            catch
-            {
-                return RedirectToAction("Index", "Cart");
-            }
-
-            // 取得選中的購物車項目
-            var cartItems = _context.Carts
-                .Include(c => c.Product)
-                .Where(c => selectedItemIds.Contains(c.CartId) && c.UserId == GetCurrentUserId())
-                .Select(c => new CartItem
+                var product = _context.Products.Find(productId.Value);
+                if (product == null || product.StockQuantity < quantity.Value)
                 {
-                    ProductId = c.ProductId,
-                    Product = c.Product,
-                    Quantity = c.Quantity
-                })
-                .ToList();
+                    return RedirectToAction("Index", "Cart");
+                }
+
+                cartItems = new List<CartItem>
+                {
+                    new CartItem
+                    {
+                        ProductId = productId.Value,
+                        Product = product,
+                        Quantity = quantity.Value
+                    }
+                };
+            }
+            // 如果是從購物車結帳
+            else if (!string.IsNullOrEmpty(selectedItems))
+            {
+                List<int> selectedItemIds;
+                try
+                {
+                    // 反序列化選中的商品 ID
+                    selectedItemIds = JsonSerializer.Deserialize<List<int>>(selectedItems);
+                }
+                catch
+                {
+                    return RedirectToAction("Index", "Cart");
+                }
+
+                // 取得選中的購物車項目
+                cartItems = _context.Carts
+                    .Include(c => c.Product)
+                    .Where(c => selectedItemIds.Contains(c.CartId) && c.UserId == GetCurrentUserId())
+                    .Select(c => new CartItem
+                    {
+                        ProductId = c.ProductId,
+                        Product = c.Product,
+                        Quantity = c.Quantity
+                    })
+                    .ToList();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Cart");
+            }
 
             if (!cartItems.Any())
             {
