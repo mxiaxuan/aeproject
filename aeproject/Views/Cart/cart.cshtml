@@ -78,6 +78,16 @@
             }
 
         .btn-checkout {
+            background-color:#000;
+            color:#FFF;
+            width: 150px;
+            border-radius: 0px;
+            border: 1px solid #FFF;
+        }
+
+        .btn-checkout:hover {
+            background-color: #000;
+            color: #FFF;
             width: 150px;
             border-radius: 0px;
             border: 1px solid #FFF;
@@ -201,7 +211,7 @@
                     <p>已選取 <span id="selectedCount">0</span> 項商品，小計 NT$ <span id="selectedTotal">0</span></p>
                     <form method="post" action="/Checkout/Index" id="checkoutForm">
                         <input type="hidden" name="selectedItems" id="selectedItems" value="" />
-                        <button type="submit" id="checkoutButton" class="btn btn-primary">立即結帳</button>
+                        <button type="submit" id="checkoutButton" class="btn btn-checkout">立即結帳</button>
                     </form>
                 </div>
             </div>
@@ -214,72 +224,16 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-        var selectedItems = [1, 2, 3];  // 用戶選擇的商品ID
-        var selectedItemsJson = JSON.stringify(selectedItems);  // 轉換為 JSON 字串
-        document.querySelector('input[name="selectedItems"]').value = selectedItemsJson;
-
-        $(document).ready(function () {
-            $('#checkoutButton').on('click', function (e) {
-                e.preventDefault(); // 阻止默认提交
-
-                // 收集选中的购物车项目 ID
-                const selectedIds = $(".select-item:checked").map(function () {
-                    return $(this).data('cart-id');
-                }).get();
-
-                if (selectedIds.length === 0) {
-                    alert("請選擇至少一個商品進行結帳！");
-                    return;
-                }
-
-                // 将选中的商品 ID 转换为 JSON 字符串
-                $('#selectedItems').val(JSON.stringify(selectedIds));
-
-                // 提交表单
-                $('#checkoutForm').submit();
-            });
-        });
-
-        $(document).ready(function () {
-            $('#checkoutForm').on('submit', function (e) {
-                const selectedIds = $(".select-item:checked").map(function () {
-                    return $(this).data('cart-id');
-                }).get();
-
-                // 將選中的商品 ID 傳遞到隱藏欄位
-                $('#selectedItems').val(JSON.stringify(selectedIds));
-
-                if (selectedIds.length === 0) {
-                    e.preventDefault();
-                    alert("請選擇至少一個商品進行結帳！");
-                }
-            });
-        });
-
-        $.ajax({
-            url: '/Cart/Checkout',
-            type: 'POST',
-            data: {
-                selectedItems: JSON.stringify(selectedItemIds)  // 將 selectedItemIds 轉換為 JSON 字串
-            },
-            success: function(response) {
-                // 處理成功響應
-            },
-            error: function(xhr, status, error) {
-                // 處理錯誤響應
-            }
-        });
-
         $(document).ready(function () {
             // 全選/取消全選
             $("#selectAll").on("change", function () {
                 $(".select-item").prop("checked", this.checked).trigger("change");
             });
 
-            // 數量即時更新
+            // 商品數量即時更新
             $(".quantity-input").on("change", function () {
                 const row = $(this).closest("tr");
-                const cartId = $(this).data("cart-id");
+                const cartId = $(this).data('cart-id');
                 const quantity = parseInt($(this).val(), 10);
                 const price = parseInt(row.find("td:nth-child(3)").text().replace(/[^0-9]/g, ""), 10);
                 const subtotal = quantity * price;
@@ -290,8 +244,8 @@
                 // 觸發選取商品的小計計算
                 $(".select-item").trigger("change");
 
-                // 異步更新購物車數量
-                $.post("@Url.Action("UpdateQuantity", "Cart")", {
+                // 非同步更新購物車數量
+                $.post("/Cart/UpdateQuantity", {
                     cartId: cartId,
                     quantity: quantity
                 });
@@ -317,116 +271,80 @@
 
             // 初始化小計
             $(".select-item").trigger("change");
-        });
 
-        $(document).ready(function() {
-            // 获取防伪令牌
-            var token = $('input[name="__RequestVerificationToken"]').val();
-
-            $('.remove-btn').on('click', function(e) {
+            // 綁定移除商品按鈕
+            $('.remove-btn').on('click', function (e) {
                 e.preventDefault();
                 var cartId = $(this).data('cart-id');
                 var row = $(this).closest('tr');
 
-                console.log('Removing cart item:', cartId);
+                console.log('移除購物車商品:', cartId);
 
                 $.ajax({
-                    url: "@Url.Action("RemoveFromCart", "Cart")",  // 使用雙引號
+                    url: "/Cart/RemoveFromCart",
                     type: 'POST',
-                    data: {
-                        cartId: cartId,
-                        __RequestVerificationToken: token
-                    },
+                    data: { cartId: cartId },
                     dataType: 'json',
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
-                            // 移除这一行
+                            // 移除對應的行
                             row.remove();
 
-                            // 重新计算总计
+                            // 重新計算總計
                             $(".select-item").trigger("change");
 
-                            // 提示成功消息
+                            // 提示成功訊息
                             alert(response.message);
                         } else {
-                            // 显示错误消息
                             alert(response.message);
                         }
                     },
-                    error: function(xhr, status, error) {
-                        // 解析错误响应
+                    error: function (xhr, status, error) {
                         try {
                             var response = JSON.parse(xhr.responseText);
                             alert('移除商品失敗：' + (response.message || error));
-                        } catch(e) {
+                        } catch (e) {
                             alert('移除商品失敗：' + error);
                         }
-                        console.error('Remove failed:', xhr.responseText);
+                        console.error('移除失敗:', xhr.responseText);
                     }
                 });
             });
-        });
 
-        function validateQuantity(input, maxStock) {
-                const value = parseInt(input.value);
-                const cartId = input.dataset.cartId;
-                const row = $(input).closest('tr');
+            // 提交購物車表單進行結帳
+            $('#checkoutButton').on('click', function (e) {
+                e.preventDefault(); // 阻止默認提交
 
-                // 如果輸入為空或不是數字，不進行處理
-                if (input.value === '' || isNaN(value)) {
+                // 收集選中的購物車項目 ID
+                const selectedIds = $(".select-item:checked").map(function () {
+                    return $(this).data('cart-id');
+                }).get();
+
+                if (selectedIds.length === 0) {
+                    alert("請選擇至少一個商品進行結帳！");
                     return;
                 }
 
-                // 發送 AJAX 請求到後端
-                $.ajax({
-                    url: '@Url.Action("UpdateQuantity", "Cart")',
-                    type: 'POST',
-                    data: {
-                        cartId: cartId,
-                        quantity: value
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // 更新小計金額
-                            row.find('.subtotal').text(response.formattedSubtotal);
+                // 將選中的商品 ID 轉換為 JSON 字串
+                $('#selectedItems').val(JSON.stringify(selectedIds));
 
-                            // 觸發選取商品的小計計算
-                            $(".select-item").trigger("change");
-                        } else {
-                            // 顯示錯誤訊息
-                            alert(response.message);
+                // 提交表單
+                $('#checkoutForm').submit();
+            });
 
-                            // 如果是庫存不足，將數量重置為最大庫存量
-                            if (response.stockQuantity) {
-                                input.value = response.stockQuantity;
-                                // 重新觸發驗證以更新小計
-                                validateQuantity(input, response.stockQuantity);
-                            }
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        alert('更新數量失敗，請稍後再試');
-                        // 發生錯誤時重置為原始值
-                        input.value = input.defaultValue;
-                    }
-                });
-            }
-
-            // 防止直接輸入負數或非數字
-            $('.quantity-input').on('keypress', function(e) {
-                // 只允許輸入數字
+            // 校驗商品數量輸入
+            $('.quantity-input').on('keypress', function (e) {
+                // 僅允許輸入數字
                 if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
                     return false;
                 }
-            });
-
-            // 當輸入框失去焦點時，確保至少有一個數量
-            $('.quantity-input').on('blur', function() {
+            }).on('blur', function () {
                 if (this.value === '' || parseInt(this.value) < 1) {
                     this.value = 1;
-                    validateQuantity(this, parseInt(this.max));
+                    $(this).trigger('change');
                 }
             });
+        });
     </script>
 </body>
 </html>
