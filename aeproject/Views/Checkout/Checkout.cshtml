@@ -231,56 +231,123 @@
                         <h5 class="mb-0">購買商品明細</h5>
                     </div>
                     <div class="card-body">
+                        @{
+                            var cartItems = ViewBag.CartItems as List<CartItem>;
+                        }
+
                         <ul class="list-group list-group-flush">
-                            @foreach (var item in ViewBag.CartItems as List<CartItem>)
+                            @if (cartItems != null && cartItems.Any())
                             {
-                                <li class="list-group-item d-flex align-items-center" style="margin-bottom: 15px;">
-                                    <img src="@item.Product.ProductImage" alt="@item.Product.ProductName" class="img-fluid" style="width: 80px; height: 80px; object-fit: cover; margin-right: 15px;" />
-                                    <div style="flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                        <strong>@item.Product.ProductName</strong>
-                                        <div class="text-muted">@item.Quantity x NT$@String.Format("{0:N0}", item.Product.Price)</div>
-                                    </div>
-                                    <span>NT$@String.Format("{0:N0}", item.Total)</span>
-                                </li>
+                                foreach (var item in cartItems)
+                                {
+                                    <li class="list-group-item d-flex align-items-center" style="margin-bottom: 15px;">
+                                        <img src="@item.Product.ProductImage" alt="@item.Product.ProductName" class="img-fluid" style="width: 80px; height: 80px; object-fit: cover; margin-right: 15px;" />
+                                        <div style="flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                                            <strong>@item.Product.ProductName</strong>
+                                            <div class="text-muted">@item.Quantity x NT$@String.Format("{0:N0}", item.Product.Price)</div>
+                                        </div>
+                                        <span>NT$@String.Format("{0:N0}", item.Quantity * item.Product.Price)</span>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="list-group-item">購物車為空</li>
                             }
                         </ul>
                     </div>
                     <div class="card-footer text-right">
-                        <strong>應付總額：NT$@String.Format("{0:N0}", ViewBag.TotalAmount)</strong>
+                        <strong>應付總額：NT$@String.Format("{0:N0}", ViewBag.TotalAmount ?? 0)</strong>
                     </div>
                 </div>
-                <div class="row mt-4">
-                    <div class="col text-center">
-                        <button type="submit" class="btn btn-light btn-lg custom-btn">送出訂單</button>
-                    </div>
-                </div>
+                <form asp-controller="Checkout" asp-action="SubmitOrder" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Shipping Information -->
+                    <input type="hidden" name="shippingAddress" value="@ViewBag.ShippingAddress ?? " Unknown Address"" />
+                    <input type="hidden" name="contactPhone" value="@ViewBag.ContactPhone ?? " Unknown Phone"" />
+
+                    <!-- Payment Method -->
+                    <input type="hidden" name="paymentMethod" value="@ViewBag.PaymentMethod" />
+
+                    <!-- Orderer Information -->
+                    <input type="hidden" name="ordererName" value="@ViewBag.OrdererName" />
+                    <input type="hidden" name="ordererPhone" value="@ViewBag.OrdererPhone" />
+                    <input type="hidden" name="ordererAddress" value="@ViewBag.OrdererAddress" />
+                    <input type="hidden" name="ordererBirthday" value="@ViewBag.OrdererBirthday" />
+
+                    <!-- Order Notes -->
+                    <input type="hidden" name="orderNotes" value="@ViewBag.OrderNotes" />
+
+                    <!-- Invoice Information -->
+                    <input type="hidden" name="invoiceType" value="@ViewBag.InvoiceType" />
+                    <input type="hidden" name="vehicleType" value="@ViewBag.VehicleType" />
+                    <input type="hidden" name="phoneBarcodeInput" value="@ViewBag.PhoneBarcodeInput" />
+                    <input type="hidden" name="taxId" value="@ViewBag.TaxId" />
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-light btn-lg custom-btn mt-3">送出訂單</button>
+                </form>
             </div>
         </div>
-
-        
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
-            const addressInput = document.getElementById('shippingAddress');
-            const phoneInput = document.getElementById('contactPhone');
 
             form.addEventListener('submit', function(event) {
-                // 地址驗證
-                if (addressInput.value.trim().length < 10) {
-                    event.preventDefault();
-                    alert('請輸入完整且正確的收貨地址');
-                    return;
+                let isValid = true;
+                let errorMessages = [];
+
+                // 收件地址驗證
+                const shippingAddress = document.getElementById('shippingAddress');
+                if (shippingAddress.value.trim().length < 10) {
+                    isValid = false;
+                    errorMessages.push('請輸入完整且正確的收貨地址');
                 }
 
-                // 手機號碼驗證
-                const phoneRegex = /^09\d{8}$/;
-                if (!phoneRegex.test(phoneInput.value)) {
+                // 聯絡電話驗證
+                const contactPhone = document.getElementById('contactPhone');
+                const contactPhoneRegex = /^09\d{8}$/;
+                if (!contactPhoneRegex.test(contactPhone.value)) {
+                    isValid = false;
+                    errorMessages.push('請輸入正確的10碼手機號碼');
+                }
+
+                // 訂購人姓名驗證
+                const ordererName = document.getElementById('ordererName');
+                if (ordererName.value.trim() === '') {
+                    isValid = false;
+                    errorMessages.push('請輸入訂購人姓名');
+                }
+
+                // 訂購人電話驗證
+                const ordererPhone = document.getElementById('ordererPhone');
+                const ordererPhoneRegex = /^09\d{8}$/;
+                if (!ordererPhoneRegex.test(ordererPhone.value)) {
+                    isValid = false;
+                    errorMessages.push('請輸入正確的訂購人手機號碼');
+                }
+
+                // 發票類型驗證
+                const invoiceTypes = document.querySelectorAll('input[name="invoiceType"]');
+                if (!Array.from(invoiceTypes).some(radio => radio.checked)) {
+                    isValid = false;
+                    errorMessages.push('請選擇發票類型');
+                }
+
+                // 付款方式驗證
+                const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+                if (!Array.from(paymentMethods).some(radio => radio.checked)) {
+                    isValid = false;
+                    errorMessages.push('請選擇付款方式');
+                }
+
+                if (!isValid) {
                     event.preventDefault();
-                    alert('請輸入正確的手機號碼（10碼，以09開頭）');
-                    return;
+                    alert(errorMessages.join('\n'));
                 }
             });
         });

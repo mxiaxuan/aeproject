@@ -1,14 +1,61 @@
-﻿@model Order
+﻿@model aeproject.Models.Order
 
-<h1>訂單確認</h1>
-<p>訂單號碼: @Model.OrderId</p>
-<p>訂單日期: @Model.OrderDate</p>
-<p>配送地址: @Model.ShippingAddress</p>
-<p>總金額: @Model.TotalAmount</p>
-<h3>商品清單</h3>
-<ul>
-    @foreach (var item in Model.OrderItems)
-    {
-        <li>@item.ProductId - @item.Quantity x @item.Price = @item.TotalPrice</li>
-    }
-</ul>
+<div class="container">
+    <h1 class="mb-4">訂單確認</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>訂單基本資訊</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>訂單號碼:</strong> @Model.OrderId</p>
+            <p><strong>訂單日期:</strong> @(Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "未提供")</p>
+            <p><strong>訂單狀態:</strong> @Model.OrderStatus</p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>收件人資訊</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>收件地址:</strong> @Model.ShippingAddress</p>
+            <p><strong>聯絡電話:</strong> @Model.ContactPhone</p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>商品清單</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>商品名稱</th>
+                        <th>單價</th>
+                        <th>數量</th>
+                        <th>小計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr>
+                            <td>@item.Product.ProductName</td>
+                            <td>NT$@item.Price.ToString("N0")</td>
+                            <td>@item.Quantity</td>
+                            <td>NT$@item.TotalPrice.ToString("N0")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>總金額:</strong></td>
+                        <td>NT$@Model.TotalAmount.ToString("N0")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
