@@ -17,7 +17,7 @@
                     <div class="col-md-3 mt-3 album-card" data-album-name="@item.AlbumName.ToLower()">
                         <!-- 每行顯示4個卡片 -->
                         <div class="card" style="margin-bottom: 20px;">
-                            <img src="@Url.Content(item.AlbumCover)" class="card-img-top" alt="Album Cover" style="max-height: 500px;">
+                            <img src="@Url.Content(item.AlbumCover)" class="card-img-top" alt="Album Cover" style="max-height: 100%;">
                             <div class="card-body">
                                 <h5 class="card-title text-center">@Html.DisplayFor(modelItem => item.AlbumName)</h5>
                                 <p class="card-text mt-3">
