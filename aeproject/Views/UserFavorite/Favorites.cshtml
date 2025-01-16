@@ -1,0 +1,289 @@
+﻿@{
+    Layout = null; // 不使用佈局
+}
+@using System.Web
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>ae shop - Favorites</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f0f8ff, #000000cc);
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .favorites-title {
+            text-align: center; /* 置中 */
+            font-size: 1.5rem; /* 調整字體大小 */
+            margin-top: 120px; /* 調整位置，避免被 navbar 擋住 */
+            color: white;
+        }
+
+        .favorites-table {
+            width: 100%;
+            margin-top: 80px;
+            background-color: #343a40ad;
+        }
+
+            .favorites-table img {
+                width: 90px;
+                height: auto;
+                margin-right: 10px;
+            }
+
+            .favorites-table th, .favorites-table td {
+                padding: 15px;
+                text-align: center;
+                vertical-align: middle; /* 確保內容垂直居中 */
+            }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-name {
+            margin-left: 10px;
+            text-align: left;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #FFF;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .add-to-cart-btn {
+            background-color: #FFF;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            white-space: nowrap; /* 防止文字換行 */
+            min-width: 120px; /* 設定最小寬度確保有足夠空間 */
+        }
+
+            .add-to-cart-btn:hover {
+                background-color: #ffffffb5;
+            }
+
+        .favorites-table td:last-child {
+            text-align: center;
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+        }
+
+        .dropdown-item {
+            display: flex; /* 使用彈性盒模型 */
+            align-items: center; /* 垂直居中對齊 */
+            gap: 10px; /* 圖示與文字間距 */
+        }
+
+            .dropdown-item i {
+                font-size: 16px; /* 確保圖示大小一致 */
+                width: 20px; /* 固定寬度，保證對齊 */
+                text-align: center; /* 圖示居中對齊 */
+            }
+
+        .dropdown-menu {
+            padding: 0.5rem 1rem; /* 適當調整內距 */
+        }
+
+        .swal2-popup {
+            background: rgba(52, 58, 64, 0.95) !important;
+            color: white !important;
+        }
+
+        .swal2-title, .swal2-html-container {
+            color: white !important;
+        }
+
+        .swal2-confirm {
+            background-color: white !important;
+            color: #343a40 !important;
+        }
+
+            .swal2-confirm:hover {
+                background-color: #f8f9fa !important;
+            }
+
+        .swal2-cancel {
+            background-color: #6c757d !important;
+        }
+    </style>
+</head>
+<body id="page-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <div class="navbar-left d-flex align-items-center">
+                <a class="navbar-brand" asp-controller="Products" asp-action="Index">
+                    <img src="~/assets/img/aespalogo.png" alt="Logo" style="max-width: 80px; height: auto;" />
+                </a>
+            </div>
+            <div class="navbar-right d-flex align-items-center ml-auto">
+                <ul class="navbar-nav align-items-center">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> @User.Identity.Name
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" asp-controller="UserFavorite" asp-action="Favorites">
+                                    <i class="fa-regular fa-heart"></i> 我的收藏
+                                </a>
+                                <a class="dropdown-item" asp-controller="Cart" asp-action="Index">
+                                    <i class="fa-solid fa-cart-shopping"></i> 購物車
+                                </a>
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fa-solid fa-right-from-bracket"></i> 登出
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">登入</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    @model IEnumerable<Favorite>
+    <div class="container mt-5">
+        <table class="favorites-table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>商品資料</th>
+                    <th>單價</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var favorite in Model)
+                {
+                    <tr>
+                        <td class="product-info">
+                            <img src="@favorite.Product.ProductImage"
+                                 alt="@favorite.Product.ProductName"
+                                 style="max-width: 100%; height: auto;" />
+                            <div class="product-name">
+                                <a href="@Url.Action("Details", "Products", new { id = favorite.ProductId })"
+                                   style="color: white; text-decoration: none;">
+                                    <h7>@favorite.Product.ProductName</h7>
+                                </a>
+                                <div></div>
+                                <button type="button" class="remove-btn mt-2" title="移除"
+                                        onclick="removeFromFavorites(@favorite.ProductId, this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>NT$@String.Format("{0:N0}", favorite.Product.Price)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $('.heart-icon').on('click', function () {
+            var productId = $(this).data('product-id');
+            var action = $(this).hasClass('is-favorite') ? 'remove' : 'add';
+
+            $.ajax({
+                url: '/UserFavorite/' + action + 'ToFavorites',
+                type: 'POST',
+                data: { productId: productId },
+                success: function () {
+                    $(this).toggleClass('is-favorite');
+                }
+            });
+        });
+
+        function removeFromFavorites(productId, button) {
+            Swal.fire({
+                title: '確定要移除這個商品嗎？',
+                text: "移除後將無法復原！",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '確定移除',
+                cancelButtonText: '取消',
+                reverseButtons: true,
+                background: '#343a40',
+                color: '#fff',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/UserFavorite/RemoveFromFavorites',
+                        type: 'POST',
+                        data: { productId: productId },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: '已移除！',
+                                    text: '商品已從收藏中移除',
+                                    icon: 'success',
+                                    confirmButtonText: '確定',
+                                    background: '#343a40',
+                                    color: '#fff',
+                                });
+                                $(button).closest('tr').fadeOut(300, function() {
+                                    $(this).remove();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: '移除失敗',
+                                    text: '請稍後再試',
+                                    icon: 'error',
+                                    confirmButtonText: '確定',
+                                    background: '#343a40',
+                                    color: '#fff',
+                                });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({
+                                title: '發生錯誤',
+                                text: '請稍後再試',
+                                icon: 'error',
+                                confirmButtonText: '確定',
+                                background: '#343a40',
+                                color: '#fff',
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

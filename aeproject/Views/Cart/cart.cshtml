@@ -1,0 +1,436 @@
+﻿@{
+    Layout = null; // 不使用佈局
+}
+
+@using System.Web
+@model List<aeproject.Models.Cart>
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@inject IHtmlHelper<List<aeproject.Models.Cart>> HtmlHelper
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>ae shop - Favorites</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #f0f8ff, #000000cc);
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding-top: 80px; /* 為固定導航欄預留空間 */
+        }
+
+        .container-nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .navbar-brand img {
+            max-width: 80px;
+            height: auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #ffffffeb;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+            .action-buttons .info {
+                text-align: right;
+            }
+
+        .btn-checkout {
+            background-color: #000;
+            color: #FFF;
+            width: 150px;
+            border-radius: 0px;
+            border: 1px solid #FFF;
+        }
+
+            .btn-checkout:hover {
+                background-color: #000;
+                color: #FFF;
+                width: 150px;
+                border-radius: 0px;
+                border: 1px solid #FFF;
+            }
+
+        .quantity-input {
+            width: 80px;
+            text-align: center;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .btn-continue {
+            width: 150px;
+            height: 40px;
+            text-align: center;
+            border-radius: 0px;
+            border: 1px solid #000;
+        }
+
+            .btn-continue:hover {
+                border: 1px solid #000;
+            }
+    </style>
+</head>
+<body>
+    @Html.AntiForgeryToken()
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" asp-controller="Products" asp-action="Index">
+                <img src="~/assets/img/aespalogo.png" alt="Logo" style="max-height: 50px;" />
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto align-items-center">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> @User.Identity.Name
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" asp-controller="UserFavorite" asp-action="Favorites">
+                                    <i class="fa-regular fa-heart"></i> 我的收藏
+                                </a>
+                                <a class="dropdown-item" asp-controller="Cart" asp-action="Index">
+                                    <i class="fa-solid fa-cart-shopping"></i> 購物車
+                                </a>
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fa-solid fa-right-from-bracket"></i> 登出
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">登入</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-5">
+        <h1 class="header-title">購物車</h1>
+
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" checked /></th>
+                        <th>商品資料</th>
+                        <th>單價</th>
+                        <th>數量</th>
+                        <th>小計</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><input type="checkbox" class="select-item" data-cart-id="@item.CartId" checked /></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="@item.Product.ProductImage" alt="@item.Product.ProductName" style="max-width: 80px; margin-right: 10px;" />
+                                    @item.Product.ProductName
+                                </div>
+                            </td>
+                            <td>NT$ @string.Format("{0:N0}", item.Product.Price)</td>
+                            <td>
+                                <input type="number"
+                                       class="form-control quantity-input"
+                                       data-cart-id="@item.CartId"
+                                       name="quantity"
+                                       value="@item.Quantity"
+                                       min="1"
+                                       max="@item.Product.StockQuantity"
+                                       oninput="validateQuantity(this, @item.Product.StockQuantity)" />
+                            </td>
+                            <td class="subtotal">NT$ @string.Format("{0:N0}", item.Quantity * item.Product.Price)</td>
+                            <td>
+                                <form method="post" action="@Url.Action("RemoveFromCart", "Cart")" id="removeForm@(item.CartId)">
+                                    <input type="hidden" name="cartId" value="@item.CartId" />
+                                    <button type="submit" class="btn btn-dark remove-btn" data-cart-id="@item.CartId">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="action-buttons">
+                <a href="@Url.Action("Index", "Products")" class="btn btn-light btn-continue">
+                    <i class="fas fa-arrow-left"></i>
+                    繼續逛逛
+                </a>
+                <div class="info">
+                    <p>已選取 <span id="selectedCount">0</span> 項商品，小計 NT$ <span id="selectedTotal">0</span></p>
+                    <form method="get" action="/Checkout/Index" id="checkoutForm">
+                        <input type="hidden" name="selectedItems" id="selectedItems" value="" />
+                        <button type="submit" id="checkoutButton" class="btn btn-checkout">立即結帳</button>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p class="text-center">你的購物車是空的！</p>
+        }
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+            $(document).ready(function () {
+                // 全選/取消全選
+                $("#selectAll").on("change", function () {
+                    $(".select-item").prop("checked", this.checked).trigger("change");
+                });
+
+                // 商品數量即時更新
+                $(".quantity-input").on("change", function () {
+                    const row = $(this).closest("tr");
+                    const cartId = $(this).data('cart-id');
+                    const quantity = parseInt($(this).val(), 10);
+                    const price = parseInt(row.find("td:nth-child(3)").text().replace(/[^0-9]/g, ""), 10);
+                    const subtotal = quantity * price;
+
+                    // 更新小計
+                    row.find(".subtotal").text("NT$ " + subtotal.toLocaleString());
+
+                    // 觸發選取商品的小計計算
+                    $(".select-item").trigger("change");
+
+                    // 非同步更新購物車數量
+                    $.post("/Cart/UpdateQuantity", {
+                        cartId: cartId,
+                        quantity: quantity
+                    });
+                });
+
+                // 計算選取商品的小計
+                $(".select-item").on("change", function () {
+                    let selectedCount = 0;
+                    let selectedTotal = 0;
+
+                    $(".select-item:checked").each(function () {
+                        const row = $(this).closest("tr");
+                        const quantity = parseInt(row.find(".quantity-input").val(), 10) || 0;
+                        const price = parseInt(row.find("td:nth-child(3)").text().replace(/[^0-9]/g, ""), 10) || 0;
+
+                        selectedCount++;
+                        selectedTotal += price * quantity;
+                    });
+
+                    $("#selectedCount").text(selectedCount);
+                    $("#selectedTotal").text(selectedTotal.toLocaleString());
+                });
+
+                // 初始化小計
+                $(".select-item").trigger("change");
+
+                // 綁定移除商品按鈕
+                $('.remove-btn').on('click', function (e) {
+                    e.preventDefault();
+                    var cartId = $(this).data('cart-id');
+                    var row = $(this).closest('tr');
+
+                    console.log('移除購物車商品:', cartId);
+
+                    $.ajax({
+                        url: "/Cart/RemoveFromCart",
+                        type: 'POST',
+                        data: { cartId: cartId },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.success) {
+                                // 移除對應的行
+                                row.remove();
+
+                                // 重新計算總計
+                                $(".select-item").trigger("change");
+
+                                // 提示成功訊息
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '成功移除購物車！',
+                                    text: '商品已成功移除您的購物車',
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                    position: 'top',
+                                    toast: true
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '成功移除購物車！',
+                                    text: '商品移除購物車失敗',
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                    position: 'top',
+                                    toast: true
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            try {
+                                var response = JSON.parse(xhr.responseText);
+                                alert('移除商品失敗：' + (response.message || error));
+                            } catch (e) {
+                                alert('移除商品失敗：' + error);
+                            }
+                            console.error('移除失敗:', xhr.responseText);
+                        }
+                    });
+                });
+
+                $('#checkoutButton').on('click', function (e) {
+                    e.preventDefault(); // 阻止默認提交
+
+                    // 收集選中的購物車項目 ID
+                    const selectedIds = $(".select-item:checked").map(function () {
+                        return $(this).data('cart-id');
+                    }).get();
+
+                    if (selectedIds.length === 0) {
+                        alert("請選擇至少一個商品進行結帳！");
+                        return;
+                    }
+
+                    // 將選中的商品 ID 轉換為字串
+                    $('#selectedItems').val(JSON.stringify(selectedIds));
+
+                    // 確保表單使用 GET 方法提交
+                    $('#checkoutForm').attr('method', 'get');
+
+                    // 提交表單
+                    $('#checkoutForm').submit();
+                });
+
+                // 校驗商品數量輸入
+                $('.quantity-input').on('keypress', function (e) {
+                    // 僅允許輸入數字
+                    if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                        return false;
+                    }
+                }).on('blur', function () {
+                    if (this.value === '' || parseInt(this.value) < 1) {
+                        this.value = 1;
+                        $(this).trigger('change');
+                    }
+                });
+
+            // 數量驗證函數
+            function validateQuantity(input, stockQuantity) {
+                let value = parseInt(input.value);
+
+                // 確保數量不小於1
+                if (isNaN(value) || value < 1) {
+                    value = 1;
+                }
+                // 確保數量不超過庫存
+                else if (value > stockQuantity) {
+                    value = stockQuantity;
+                    alert(`商品庫存僅剩 ${stockQuantity} 件`);
+                }
+
+                // 更新輸入框的值
+                input.value = value;
+            }
+
+            $(document).ready(function () {
+                // 數量輸入框事件處理
+                $('.quantity-input').on('input change', function() {
+                    const stockQuantity = parseInt($(this).attr('max'));
+                    validateQuantity(this, stockQuantity);
+
+                    // 更新小計金額
+                    const row = $(this).closest("tr");
+                    const cartId = $(this).data('cart-id');
+                    const quantity = parseInt($(this).val(), 10);
+                    const price = parseInt(row.find("td:nth-child(3)").text().replace(/[^0-9]/g, ""), 10);
+                    const subtotal = quantity * price;
+
+                    // 更新小計
+                    row.find(".subtotal").text("NT$ " + subtotal.toLocaleString());
+
+                    // 觸發選取商品的小計計算
+                    $(".select-item").trigger("change");
+
+                    // 非同步更新購物車數量
+                    $.post("/Cart/UpdateQuantity", {
+                        cartId: cartId,
+                        quantity: quantity
+                    });
+                });
+
+                // 防止直接輸入非數字字符
+                $('.quantity-input').on('keypress', function(e) {
+                    // 只允許數字輸入
+                    if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                        return false;
+                    }
+                });
+
+                // 失去焦點時的驗證
+                $('.quantity-input').on('blur', function() {
+                    const stockQuantity = parseInt($(this).attr('max'));
+                    validateQuantity(this, stockQuantity);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

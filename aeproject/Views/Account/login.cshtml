@@ -1,0 +1,277 @@
+﻿@{
+    Layout = null;
+}
+
+@{
+    ViewData["Title"] = "登入";
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: clamp(15px, 5vw, 30px);
+            background-color: white;
+            border: 2px solid #000000;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-btn {
+            background-color: #131728;
+            color: white;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: clamp(8px, 2vw, 12px);
+            font-size: clamp(14px, 2vw, 16px);
+        }
+
+            .custom-btn:hover {
+                background-color: #ffffff;
+                color: #131728;
+                border: 1px solid #000000;
+            }
+
+        .form-group {
+            margin-bottom: clamp(15px, 3vw, 25px);
+        }
+
+        .form-control {
+            padding: clamp(8px, 2vw, 12px);
+            font-size: clamp(14px, 2vw, 16px);
+        }
+
+            .form-control:focus {
+                border-color: #666f78;
+                box-shadow: 0 0 5px rgba(129, 177, 197, 0.5);
+                outline: none;
+            }
+
+        .register-text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: clamp(1rem, 3vw, 1.5rem);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: #666;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .register-link {
+            color: #81b1c5;
+            text-decoration: none;
+        }
+
+            .register-link:hover {
+                color: #16360a;
+            }
+
+        .error-message {
+            color: #dc3545;
+            font-size: clamp(0.7rem, 1.5vw, 0.8rem);
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .custom-alert {
+            width: 100%;
+            max-width: 300px;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+            margin: 0 auto 15px;
+            padding: clamp(8px, 2vw, 12px);
+        }
+
+        .social-btn {
+            margin-top: clamp(20px, 4vw, 30px);
+            display: flex;
+            justify-content: center;
+            gap: clamp(20px, 4vw, 40px);
+        }
+
+            .social-btn a {
+                width: clamp(40px, 8vw, 50px);
+                height: clamp(40px, 8vw, 50px);
+                border-radius: 50%;
+                background-color: #000912;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+            }
+
+                .social-btn a:hover {
+                    background-color: #FFF;
+                    color: #000912;
+                    border: 1px solid #000000;
+                }
+
+            .social-btn i {
+                font-size: clamp(16px, 3vw, 20px);
+            }
+
+        h5 {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            margin-bottom: clamp(15px, 3vw, 25px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h5 class="text-center">
+            @ViewData["Title"]
+            <button type="button" class="btn custom-btn ms-3" id="autofillButton">自動填寫</button>
+        </h5>
+
+        <form id="loginForm" method="post" asp-controller="Account" asp-action="Login" novalidate>
+            @if (ViewBag.LoginFailed != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
+                    @ViewBag.LoginFailed
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+            <div class="form-group">
+                <label for="username">帳號:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
+            </div>
+            <div class="form-group">
+                <label for="password">密碼:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
+            </div>
+            <button type="submit" class="btn custom-btn btn-block">登入</button>
+            <div class="register-text">
+                <span>還沒有帳號嗎?</span>
+                <a href="/Account/Register" class="register-link">點擊註冊</a>
+            </div>
+            <div class="social-btn">
+                <a class="btn btn-google" asp-action="GoogleLogin" asp-controller="Account" title="使用 Google 登入">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="/Account/LoginWithLine" class="btn btn-line" title="使用 LINE 登入">
+                    <i class="fab fa-line"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // 自動填寫按鈕
+        document.getElementById("autofillButton").addEventListener("click", function () {
+            const usernameInput = document.getElementById("username");
+            const passwordInput = document.getElementById("password");
+
+            // 填入值
+            usernameInput.value = "hanSolo101";
+            passwordInput.value = "S0loP@ss!2024";
+
+            // 移除錯誤訊息並清理樣式
+            usernameInput.classList.remove("is-invalid");
+            usernameInput.nextElementSibling.style.display = "none";
+
+            passwordInput.classList.remove("is-invalid");
+            passwordInput.nextElementSibling.style.display = "none";
+        });
+
+        // 在 login.cshtml 的 script 區塊中替換或添加以下代碼
+        document.getElementById("loginForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            var isValid = true;
+            var inputs = document.querySelectorAll("#loginForm .form-control");
+
+            inputs.forEach(function (input) {
+                var errorMessage = input.nextElementSibling;
+                if (!input.value.trim()) {
+                    isValid = false;
+                    errorMessage.style.display = "block";
+                    input.classList.add("is-invalid");
+                } else {
+                    errorMessage.style.display = "none";
+                    input.classList.remove("is-invalid");
+                }
+            });
+
+            if (!isValid) {
+                return;
+            }
+
+            // 收集表單數據
+            var formData = new FormData(this);
+
+            // 發送 AJAX 請求
+            fetch('/Account/Login', {
+                method: 'POST',
+                body: new URLSearchParams(formData),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 顯示成功訊息
+                    Swal.fire({
+                        icon: 'success',
+                        title: '登入成功',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        // 跳轉到首頁
+                        window.location.href = data.redirectUrl;
+                    });
+                } else {
+                    // 顯示錯誤訊息
+                    Swal.fire({
+                        icon: 'error',
+                        title: '登入失敗',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '錯誤',
+                    text: '發生未知錯誤，請稍後再試'
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+﻿@{
+    Layout = null; // 不使用佈局
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>ae shop - Checkout</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            background: #000000cc;
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding-top: 80px; /* 為固定導航欄預留空間 */
+        }
+
+        .container-nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .navbar-brand img {
+            max-width: 80px;
+            height: auto;
+        }
+
+        .checkout-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            border-radius: 0;
+        }
+
+        .product-name {
+            white-space: nowrap; /* 禁止換行 */
+            overflow: hidden; /* 超出部分隱藏 */
+            text-overflow: ellipsis; /* 用省略號替代超出部分 */
+            display: block; /* 確保元素為塊級 */
+            max-width: 200px; /* 限制寬度（根據需求調整） */
+        }
+
+        .custom-btn {
+            width: 350px; /* 按鈕寬度可依需求調整 */
+            border-radius: 0; /* 移除圓角 */
+            border: solid 1px #000
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <div class="navbar-left d-flex align-items-center">
+                <a class="navbar-brand" asp-controller="Products" asp-action="Index">
+                    <img src="~/assets/img/aespalogo.png" alt="Logo" style="max-width: 80px; height: auto;" />
+                </a>
+            </div>
+            <div class="navbar-right d-flex align-items-center ml-auto">
+                <ul class="navbar-nav align-items-center">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> @User.Identity.Name
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" asp-controller="UserFavorite" asp-action="Favorites">
+                                    <i class="fa-regular fa-heart"></i> 我的收藏
+                                </a>
+                                <a class="dropdown-item" asp-controller="Cart" asp-action="Index">
+                                    <i class="fa-solid fa-cart-shopping"></i> 購物車
+                                </a>
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fa-solid fa-right-from-bracket"></i> 登出
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">登入</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="checkout-container">
+        <form asp-controller="Checkout" asp-action="SubmitOrder" method="post" id="checkoutForm">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-12 col-lg-8">
+                    <!-- 1. 收件方式 -->
+                    <div class="card form-section">
+                        <div class="card-header">
+                            <h5 class="mb-0">1. 收件方式</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="shippingAddress">收件地址</label>
+                                <input type="text" class="form-control" id="shippingAddress" name="shippingAddress" required placeholder="請輸入完整收貨地址" />
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPhone">聯絡電話</label>
+                                <input type="tel" class="form-control" id="contactPhone" name="contactPhone" required pattern="[0-9]{10}" placeholder="請輸入10碼手機號碼" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 付款方式 -->
+                    <div class="card form-section">
+                        <div class="card-header">
+                            <h5 class="mb-0">2. 付款方式</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="CreditCard" required>
+                                <label class="form-check-label" for="creditCard">信用卡</label>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery" value="CashOnDelivery">
+                                <label class="form-check-label" for="cashOnDelivery">貨到付款</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 訂購人資訊 -->
+                    <div class="card form-section">
+                        <div class="card-header">
+                            <h5 class="mb-0">3. 訂購人資訊</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="ordererName">姓名</label>
+                                <input type="text" class="form-control" id="ordererName" name="ordererName" required placeholder="請輸入姓名" />
+                            </div>
+                            <div class="form-group">
+                                <label for="ordererPhone">行動電話</label>
+                                <input type="tel" class="form-control" id="ordererPhone" name="ordererPhone" required pattern="[0-9]{10}" placeholder="請輸入行動電話" />
+                            </div>
+                            <div class="form-group">
+                                <label for="ordererAddress">地址</label>
+                                <input type="text" class="form-control" id="ordererAddress" name="ordererAddress" placeholder="請輸入地址 (選填)" />
+                            </div>
+                            <div class="form-group">
+                                <label for="ordererBirthday">生日</label>
+                                <input type="date" class="form-control" id="ordererBirthday" name="ordererBirthday" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 訂單備註 -->
+                    <div class="card form-section">
+                        <div class="card-header">
+                            <h5 class="mb-0">4. 訂單備註</h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control" id="orderNotes" name="orderNotes" rows="3" placeholder="請輸入訂單備註"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 5. 發票資訊 -->
+                    <div class="card form-section">
+                        <div class="card-header">
+                            <h5 class="mb-0">5. 發票資訊</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="invoiceType" id="cloudInvoice" value="CloudInvoice" required>
+                                <label class="form-check-label" for="cloudInvoice">雲端發票</label>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="radio" name="invoiceType" id="donationInvoice" value="DonationInvoice">
+                                <label class="form-check-label" for="donationInvoice">捐贈發票</label>
+                            </div>
+
+                            <div id="cloudInvoiceOptions" class="form-group mt-3 d-none">
+                                <label for="vehicleType">發票載具</label>
+                                <select class="form-control" id="vehicleType" name="vehicleType">
+                                    <option value="MemberCarrier">會員載具（中獎發票將寄至訂購人地址）</option>
+                                    <option value="PhoneBarcode">手機條碼</option>
+                                </select>
+                            </div>
+
+                            <div id="phoneBarcodeInputContainer" class="form-group mt-3 d-none">
+                                <label for="phoneBarcodeInput">載具號碼</label>
+                                <input type="text" class="form-control" id="phoneBarcodeInput" name="phoneBarcodeInput" placeholder="請輸入載具號碼(/+7個英數字元)">
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <button type="button" class="btn btn-secondary" id="addTaxIdButton">輸入統一編號</button>
+                            </div>
+
+                            <div id="taxIdContainer" class="mt-3 d-none">
+                                <label for="taxId">統一編號</label>
+                                <input type="text" class="form-control" id="taxId" name="taxId" placeholder="請輸入統一編號" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-12 col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">購買商品明細</h5>
+                        </div>
+                        <div class="card-body">
+                            @{
+                                var cartItems = ViewBag.CartItems as List<CartItem>;
+                            }
+
+                            <ul class="list-group list-group-flush">
+                                @if (cartItems != null && cartItems.Any())
+                                {
+                                    foreach (var item in cartItems)
+                                    {
+                                        <li class="list-group-item d-flex align-items-center">
+                                            <img src="@item.Product.ProductImage" alt="@item.Product.ProductName" class="img-fluid" style="width: 80px; height: 80px; object-fit: cover; margin-right: 15px;" />
+                                            <div style="flex: 1;">
+                                                <strong class="product-name">@item.Product.ProductName</strong>
+                                                <div class="text-muted">@item.Quantity x NT$@String.Format("{0:N0}", item.Product.Price)</div>
+                                            </div>
+                                            <span>NT$@String.Format("{0:N0}", item.Quantity * item.Product.Price)</span>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="list-group-item">購物車為空</li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="card-footer">
+                            <div class="text-right mb-3">
+                                <strong>應付總額：NT$@String.Format("{0:N0}", ViewBag.TotalAmount ?? 0)</strong>
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-lg custom-btn">送出訂單</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表單驗證和提交
+            const form = document.getElementById('checkoutForm');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                let isValid = true;
+                let errorMessages = [];
+
+                //收件地址驗證
+                const shippingAddress = document.getElementById('shippingAddress');
+                if (shippingAddress.value.trim().length < 10) {
+                    isValid = false;
+                    errorMessages.push('請輸入完整且正確的收貨地址');
+                }
+
+                //聯絡電話驗證
+                const contactPhone = document.getElementById('contactPhone');
+                const contactPhoneRegex = /^09\d{8}$/;
+                if (!contactPhoneRegex.test(contactPhone.value)) {
+                    isValid = false;
+                    errorMessages.push('請輸入正確的10碼手機號碼');
+                }
+
+                //訂購人姓名驗證
+                const ordererName = document.getElementById('ordererName');
+                if (ordererName.value.trim() === '') {
+                    isValid = false;
+                    errorMessages.push('請輸入訂購人姓名');
+                }
+
+                //訂購人電話驗證
+                const ordererPhone = document.getElementById('ordererPhone');
+                const ordererPhoneRegex = /^09\d{8}$/;
+                if (!ordererPhoneRegex.test(ordererPhone.value)) {
+                    isValid = false;
+                    errorMessages.push('請輸入正確的訂購人手機號碼');
+                }
+
+                //發票類型驗證
+                const invoiceTypes = document.querySelectorAll('input[name="invoiceType"]');
+                if (!Array.from(invoiceTypes).some(radio => radio.checked)) {
+                    isValid = false;
+                    errorMessages.push('請選擇發票類型');
+                }
+
+                //付款方式驗證
+                const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+                if (!Array.from(paymentMethods).some(radio => radio.checked)) {
+                    isValid = false;
+                    errorMessages.push('請選擇付款方式');
+                }
+
+                if (!isValid) {
+                    alert(errorMessages.join('\n'));
+                    return;
+                }
+                
+                // 如果驗證通過，使用 AJAX 提交表單
+                $.ajax({
+                    url: form.action,
+                    method: 'POST',
+                    data: $(form).serialize(),
+                    success: function(response) {
+                        console.log('收到回應:', response); // 記錄完整回應
+                        if (response.success) {
+                            window.location.href = response.redirectUrl;
+                        } else {
+                            console.error('處理失敗:', response.details); // 記錄錯誤詳情
+                            let errorMessage = response.message;
+                            if (response.details) {
+                                errorMessage += '\n\n詳細錯誤：';
+                                if (response.details.error) {
+                                    errorMessage += '\n錯誤：' + response.details.error;
+                                }
+                                if (response.details.innerError) {
+                                    errorMessage += '\n內部錯誤：' + response.details.innerError;
+                                }
+                            }
+                            alert(errorMessage);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX 錯誤:', {
+                            status: status,
+                            error: error,
+                            response: xhr.responseText
+                        });
+                        alert('發送請求時發生錯誤: ' + error);
+                    }
+                });
+            });
+
+            // 發票相關功能保持不變
+            const cloudInvoice = document.getElementById('cloudInvoice');
+            const donationInvoice = document.getElementById('donationInvoice');
+            const cloudInvoiceOptions = document.getElementById('cloudInvoiceOptions');
+            const vehicleType = document.getElementById('vehicleType');
+            const phoneBarcodeInputContainer = document.getElementById('phoneBarcodeInputContainer');
+            const addTaxIdButton = document.getElementById('addTaxIdButton');
+            const taxIdContainer = document.getElementById('taxIdContainer');
+
+            // 統一編號按鈕事件
+            addTaxIdButton.addEventListener('click', function() {
+                taxIdContainer.classList.toggle('d-none');
+            });
+
+            // 發票類型切換事件
+            cloudInvoice.addEventListener('change', function() {
+                if (this.checked) {
+                    cloudInvoiceOptions.classList.remove('d-none');
+                    phoneBarcodeInputContainer.classList.add('d-none');
+                }
+            });
+
+            donationInvoice.addEventListener('change', function() {
+                if (this.checked) {
+                    cloudInvoiceOptions.classList.add('d-none');
+                    phoneBarcodeInputContainer.classList.add('d-none');
+                }
+            });
+
+            // 載具類型切換事件
+            vehicleType.addEventListener('change', function() {
+                if (this.value === 'PhoneBarcode') {
+                    phoneBarcodeInputContainer.classList.remove('d-none');
+                } else {
+                    phoneBarcodeInputContainer.classList.add('d-none');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

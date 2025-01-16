@@ -1,0 +1,173 @@
+﻿﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>ae shop</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body id="page-top">
+    <!-- Home 按鈕 -->
+    <a href="/" class="home-button" id="backToHome">
+        <i class="fa-sharp fa-light fa-house"></i>
+    </a>
+    <!-- Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand" href="#page-top"><img src="assets/img/aespalogo.png" alt="..." /></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                Menu
+                <i class="fas fa-bars ms-1"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="#about_aespa">關於</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#albumview" id="album-link">專輯一覽</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Products" asp-action="Index">商品購買</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Cart" asp-action="Index">購物車</a></li>
+
+                    <!-- 登入狀態判斷 -->
+                    <!-- 登入狀態判斷，顯示下拉選單和使用者圖示 -->
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> @User.Identity.Name
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" asp-controller="UserFavorite" asp-action="Favorites"><i class="fa-regular fa-heart"></i>  我的收藏</a>
+                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                    <button type="submit" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i>  登出</button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">登入</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Masthead-->
+    <header class="masthead">
+        <div class="container text-center">
+            @RenderBody()
+            <div class="masthead-subheading"></div>
+            <div class="masthead-heading text-uppercase">Welcome To My World!</div>
+            <div class="button-group">
+                <a class="btn btn-primary btn-xl text-uppercase" href="#about_aespa">了解更多</a>
+                <a class="btn btn-primary btn-xl text-uppercase" asp-controller="Products" asp-action="Index">前往購買</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- about aespa-->
+    <section class="page-section bg-light" id="about_aespa">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-heading">About aespa</h2>
+                <h3 class="section-subheading text-muted">Be MY æ!</h3>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/karina-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">Karina</h4>
+                        <p class="text-muted">劉知珉(隊長)</p>
+                        <p class="text">生日：2000-04-11</p>
+                        <p class="text">國籍：韓國</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/katarinabluu/" target="_blank" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=PwnHCwC2H9E" target="_blank" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/giselle-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">Giselle</h4>
+                        <p class="text-muted">内永枝利</p>
+                        <p class="text">生日：2000-10-30</p>
+                        <p class="text">國籍：日本</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/aerichandesu/" target="_blank" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=9xG6DGrsd5E" target="_blank" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/winter-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">Winter</h4>
+                        <p class="text-muted">金旼炡</p>
+                        <p class="text">生日：2001-01-01</p>
+                        <p class="text">國籍：韓國</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/imwinter/" target="_blank" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=T7AdZyTYHOI" target="_blank" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3 mt-3">
+                    <div class="about aespa-member text-center">
+                        <img class="mx-auto rounded-circle" src="~/assets/img/team/ningning-about.jpg" width="200" height="200" alt="..." />
+                        <h4 class="pt-3">NingNing</h4>
+                        <p class="text-muted">寧藝卓</p>
+                        <p class="text">生日：2002-10-23</p>
+                        <p class="text">國籍：中國</p>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.instagram.com/imnotningning/" target="_blank" aria-label="Parveen Anand Instagram Profile"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-dark btn-social mx-2" href="https://www.youtube.com/watch?v=aWh8j7rcQNE" target="_blank" aria-label="Parveen Anand YouTube Profile"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- albumview-->
+    <section class="page-section" id="albumview">
+        <div id="album-section"></div>
+    </section>
+
+    <!-- about aespa-->
+    <section class="page-section bg-light" id="goproduct">
+        <div class="container">
+            <h2 class="section-heading">對於aespa有更多了解了嗎?</h2>
+            <a class="btn btn-dark btn-xl text-uppercase" asp-controller="Products" asp-action="Index">前往購買</a>
+        </div>
+    </section>
+
+    <!-- Footer-->
+    <footer class="footer py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-4 text-lg-start"> &copy; aeshop 2024</div>
+                <div class="col-lg-4 my-3 my-lg-0">
+                    <a class="btn btn-dark btn-social mx-2" href="https://x.com/aespa_official" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a class="btn btn-dark btn-social mx-2" href="https://www.facebook.com/aespa.official/?locale=zh_TW" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+    <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+    <!-- * *                               SB Forms JS                               * *-->
+    <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
+    <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+    <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+</body>
+</html>

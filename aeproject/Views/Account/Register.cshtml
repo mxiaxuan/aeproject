@@ -1,0 +1,205 @@
+﻿@{
+    Layout = null; // 不使用佈局
+}
+
+@{
+    ViewData["Title"] = "註冊帳號";
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .register-container {
+            max-width: 850px;
+            margin: auto;
+            padding: 15px;
+            background-color: white;
+            border: 2px solid #000000;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-btn {
+            background-color: #131728;
+            color: white;
+            border: none;
+        }
+
+            .custom-btn:hover {
+                color: #000000; /* 設定按下時的文字顏色為黑色 */
+                background-color: #ffffff; /* 設定按下時的背景顏色為白色 */
+                border: 1px solid #000000;
+            }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .form-control {
+            height: 30px; /* 調整這裡的高度 */
+            font-size: 1rem; /* 調整這裡的字體大小 */
+        }
+
+        select.form-control {
+            height: auto; /* 自動調整高度 */
+            padding: 0.375rem 0.75rem; /* 調整內邊距，讓字不會被擋住 */
+            font-size: 1rem; /* 調整字體大小 */
+            line-height: 1.5; /* 調整行高 */
+        }
+
+        /* 新增的 focus 樣式 */
+        .form-control:focus {
+            border-color: #131728; /* 設定邊框顏色 */
+            box-shadow: 0 0 5px rgba(19, 23, 40, 0.5); /* 設定陰影效果 */
+            outline: none; /* 去除預設藍色外框 */
+        }
+
+        .input-group-append {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* 增加標題和按鈕間的距離 */
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container mt-3">
+        <div class="input-group-append">
+            <h5>@ViewData["Title"]</h5>
+            <button type="button" class="btn custom-btn ms-3" id="autofillButton">點我</button>
+        </div>
+        <form id="registerForm" method="post" asp-controller="Account" asp-action="Register" class="mt-4" novalidate>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="username">帳號:</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                    <div class="error-message">請填寫這個欄位</div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="password">密碼:</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <div class="error-message">請填寫這個欄位</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="email">電子郵件:</label>
+                    <input type="email" id="email" name="email" class="form-control" required pattern="[a-zA-Z0-9._%+-]+\u0040[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">
+                    <div class="error-message">請輸入有效的電子郵件</div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="phone">電話:</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" required pattern="09[0-9]{8}">
+                    <div class="error-message">請輸入有效的電話號碼（例如: 0912345678）</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="lastName">姓氏:</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" required>
+                    <div class="error-message">請填寫這個欄位</div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="firstName">名字:</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" required>
+                    <div class="error-message">請填寫這個欄位</div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="dateOfBirth">生日:</label>
+                    <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control" required>
+                    <div class="error-message">請選擇日期</div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="gender">性別:</label>
+                    <select id="gender" name="gender" class="form-control" required>
+                        <option value="">選擇性別</option>
+                        <option value="M">男</option>
+                        <option value="F">女</option>
+                        <option value="O">其他</option>
+                    </select>
+                    <div class="error-message">請選擇性別</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">地址:</label>
+                <input type="text" id="address" name="address" class="form-control" required>
+                <div class="error-message">請填寫這個欄位</div>
+            </div>
+
+            <button type="submit" class="btn custom-btn btn-block mt-3">註冊</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("autofillButton").addEventListener("click", function () {
+            document.getElementById("username").value = "hanSolo101";
+            document.getElementById("password").value = "S0loP@ss!2024";
+            document.getElementById("email").value = "han.solo1998@gmail.com";
+            document.getElementById("phone").value = "0912345681";
+            document.getElementById("lastName").value = "王";
+            document.getElementById("firstName").value = "小華";
+            document.getElementById("address").value = "台中市西區文心路一段101號";
+            document.getElementById("dateOfBirth").value = "1998-09-01";
+            document.getElementById("gender").value = "M";
+        });
+
+        document.getElementById("registerForm").addEventListener("submit", function (event) {
+            let isValid = true;
+            const inputs = document.querySelectorAll("#registerForm .form-control");
+
+            // 驗證表單欄位
+            inputs.forEach(function (input) {
+                const errorMessage = input.nextElementSibling;
+                if (!input.checkValidity()) {
+                    isValid = false;
+                    errorMessage.style.display = "block";
+                    input.classList.add("is-invalid");
+                } else {
+                    errorMessage.style.display = "none";
+                    input.classList.remove("is-invalid");
+                }
+            });
+
+            if (isValid) {
+                event.preventDefault(); // 暫停提交，顯示成功動畫
+                Swal.fire({
+                    title: '註冊成功！',
+                    text: '正在跳轉到首頁...',
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1500 // 動畫時間
+                }).then(() => {
+                    this.submit(); // 動畫結束後自動提交表單
+                });
+            } else {
+                event.preventDefault(); // 阻止提交，顯示錯誤訊息
+                Swal.fire({
+                    title: '註冊失敗',
+                    text: '請檢查輸入的內容是否正確。',
+                    icon: 'error',
+                    confirmButtonText: '確認'
+                });
+            }
+        });
+
+    </script>
+</body>
+</html>

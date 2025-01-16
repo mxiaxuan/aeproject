@@ -1,0 +1,78 @@
+﻿@model IEnumerable<aeproject.Models.Album>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <h1>專輯一覽</h1>
+            <h6 class="text-muted">依發行日期排序</h6>
+
+            <input type="text" id="searchInput" class="form-control col-md-6" placeholder="搜尋專輯名稱...">
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-3 mt-3 album-card" data-album-name="@item.AlbumName.ToLower()">
+                        <!-- 每行顯示4個卡片 -->
+                        <div class="card" style="margin-bottom: 20px;">
+                            <img src="@Url.Content(item.AlbumCover)" class="card-img-top" alt="Album Cover" style="max-height: 100%;">
+                            <div class="card-body">
+                                <h5 class="card-title text-center">@Html.DisplayFor(modelItem => item.AlbumName)</h5>
+                                <p class="card-text mt-3">
+                                    發行日期: @Html.DisplayFor(modelItem => item.ReleaseDate)<br>
+                                    專輯類型: @Html.DisplayFor(modelItem => item.AlbumType)<br>
+                                    代理商: @Html.DisplayFor(modelItem => item.Agency)
+                                </p>
+                            </div>
+                            <div class="card-body text-center">
+                                <a href="#" class="card-link details-button" data-bs-toggle="modal" data-bs-target="#albumModal" data-album-id="@item.AlbumId">更多詳情</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="albumModal" tabindex="-1" aria-labelledby="albumModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="albumModalLabel">專輯曲目資訊</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- 表格開始 -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">曲目名稱</th>
+                                            <th scope="col">時長</th>
+                                            <th scope="col">語言</th>
+                                            <th scope="col">發行日期</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalBody">
+                                        <!-- 曲目資料將動態填充在這裡 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- 表格結束 -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+    </script>
+}
